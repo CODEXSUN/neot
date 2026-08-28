@@ -70,14 +70,26 @@ export function clearSessionExpiredWarning(): void {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...options,
-    headers: {
-      ...(options.body === undefined ? {} : { "Content-Type": "application/json" }),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...options,
+      headers: {
+        ...(options.body === undefined ? {} : { "Content-Type": "application/json" }),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers
+      },
+      signal: options.signal ?? AbortSignal.timeout(12_000)
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "TimeoutError") {
+      throw new Error(
+        "NEOT API did not respond within 12 seconds. Check that npm run dev:api is running.",
+        { cause: error }
+      );
     }
-  });
+    throw error;
+  }
   const responseText = await response.text();
   let envelope: ApiEnvelope<T> | null = null;
   if (responseText) {

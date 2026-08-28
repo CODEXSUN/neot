@@ -25,6 +25,7 @@ class Lesson {
     required this.subjectUuid,
     required this.title,
     required this.content,
+    required this.author,
     required this.position,
   });
   factory Lesson.fromJson(Map<String, dynamic> json) => Lesson(
@@ -32,10 +33,49 @@ class Lesson {
     subjectUuid: json['subjectUuid'] as String,
     title: json['title'] as String,
     content: json['content'] as String? ?? '',
+    author: json['author'] as String? ?? 'NEOT Learning',
     position: _number(json['position']).toInt(),
   );
-  final String uuid, subjectUuid, title, content;
+  final String uuid, subjectUuid, title, content, author;
   final int position;
+}
+
+class LearningQuestion {
+  const LearningQuestion({
+    required this.uuid,
+    required this.lessonUuid,
+    required this.askedBy,
+    required this.text,
+    required this.status,
+  });
+  factory LearningQuestion.fromJson(Map<String, dynamic> json) =>
+      LearningQuestion(
+        uuid: json['uuid'] as String,
+        lessonUuid: json['lessonUuid'] as String,
+        askedBy: json['askedBy'] as String,
+        text: json['questionText'] as String,
+        status: json['status'] as String,
+      );
+  final String uuid, lessonUuid, askedBy, text, status;
+}
+
+class LearningAnswer {
+  const LearningAnswer({
+    required this.uuid,
+    required this.questionUuid,
+    required this.answeredBy,
+    required this.text,
+    required this.accepted,
+  });
+  factory LearningAnswer.fromJson(Map<String, dynamic> json) => LearningAnswer(
+    uuid: json['uuid'] as String,
+    questionUuid: json['questionUuid'] as String,
+    answeredBy: json['answeredBy'] as String,
+    text: json['answerText'] as String,
+    accepted: json['accepted'] == true || json['accepted'] == 1,
+  );
+  final String uuid, questionUuid, answeredBy, text;
+  final bool accepted;
 }
 
 class LearningTest {
@@ -104,28 +144,37 @@ class LessonProgress {
 
 class LearningSnapshot {
   const LearningSnapshot({
+    required this.courses,
     required this.subjects,
     required this.lessons,
     required this.tests,
     required this.questions,
     required this.attempts,
     required this.progress,
+    required this.learningQuestions,
+    required this.answers,
   });
   factory LearningSnapshot.fromJson(Map<String, dynamic> json) =>
       LearningSnapshot(
+        courses: _items(json, 'courses', Course.fromJson),
         subjects: _items(json, 'subjects', Subject.fromJson),
         lessons: _items(json, 'lessons', Lesson.fromJson),
         tests: _items(json, 'tests', LearningTest.fromJson),
         questions: _items(json, 'quizQuestions', QuizQuestion.fromJson),
         attempts: _items(json, 'attempts', Attempt.fromJson),
         progress: _items(json, 'progress', LessonProgress.fromJson),
+        learningQuestions: _items(json, 'questions', LearningQuestion.fromJson),
+        answers: _items(json, 'answers', LearningAnswer.fromJson),
       );
+  final List<Course> courses;
   final List<Subject> subjects;
   final List<Lesson> lessons;
   final List<LearningTest> tests;
   final List<QuizQuestion> questions;
   final List<Attempt> attempts;
   final List<LessonProgress> progress;
+  final List<LearningQuestion> learningQuestions;
+  final List<LearningAnswer> answers;
 }
 
 List<T> _items<T>(
@@ -138,3 +187,25 @@ List<T> _items<T>(
 
 num _number(dynamic value) =>
     value is num ? value : num.tryParse('$value') ?? 0;
+
+class Course {
+  const Course({
+    required this.uuid,
+    required this.code,
+    required this.title,
+    required this.description,
+    required this.author,
+    required this.theme,
+  });
+
+  factory Course.fromJson(Map<String, dynamic> json) => Course(
+    uuid: json['uuid'] as String,
+    code: json['code'] as String,
+    title: json['title'] as String,
+    description: json['description'] as String? ?? '',
+    author: json['author'] as String? ?? 'NEOT Learning',
+    theme: json['theme'] as String? ?? 'forest',
+  );
+
+  final String uuid, code, title, description, author, theme;
+}

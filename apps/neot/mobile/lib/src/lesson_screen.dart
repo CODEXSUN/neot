@@ -45,6 +45,14 @@ class _LessonScreenState extends State<LessonScreen> {
             style: Theme.of(context).textTheme.headlineLarge
                 ?.copyWith(fontWeight: FontWeight.w900),
           ),
+          const SizedBox(height: 8),
+          Text(
+            'By ${widget.lesson.author}',
+            style: const TextStyle(
+              color: Color(0xff66705d),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 18),
           Card(
             child: Padding(

@@ -8,8 +8,12 @@ const repository = new LearningRepository();
 const uuidParams = z.object({ uuid: z.string().length(32) }).strict();
 const courseSchema = z
   .object({
-    code: z.string().trim().min(2).max(40),
+    author: z.string().trim().max(220).default(""),
+    coverImage: z.string().trim().max(1000).default(""),
     description: z.string().trim().max(3000).default(""),
+    position: z.number().int().min(0).max(10_000).default(0),
+    status: z.enum(["active", "archived", "draft"]).default("active"),
+    theme: z.enum(["berry", "forest", "ocean", "slate", "sunrise"]).default("forest"),
     title: z.string().trim().min(2).max(220)
   })
   .strict();
@@ -39,6 +43,7 @@ const subjectSchema = z
   .strict();
 const lessonSchema = z
   .object({
+    author: z.string().trim().max(220).default(""),
     content: z.string().trim().max(20_000).default(""),
     subjectUuid: z.string().length(32),
     title: z.string().trim().min(2).max(220)
@@ -71,6 +76,12 @@ const attemptSchema = z
   .object({ answers: z.record(z.string().length(32), z.string().max(160)) })
   .strict();
 const progressSchema = z.object({ status: z.enum(["viewed", "completed"]) }).strict();
+const discussionSchema = z
+  .object({
+    body: z.string().trim().min(1).max(10_000),
+    parentUuid: z.string().length(32).nullable().default(null)
+  })
+  .strict();
 
 export function registerLearningRoutes(app: FastifyInstance) {
   app.get("/learning/snapshot", async (request) =>
@@ -142,6 +153,21 @@ export function registerLearningRoutes(app: FastifyInstance) {
       { requestId: request.id }
     )
   );
+  app.get("/learning/lessons/:uuid/discussion", async (request) =>
+    ok(await repository.lessonDiscussion(uuidParams.parse(request.params).uuid), {
+      requestId: request.id
+    })
+  );
+  app.post("/learning/lessons/:uuid/discussion", async (request) =>
+    ok(
+      await repository.addLessonDiscussionPost(
+        uuidParams.parse(request.params).uuid,
+        discussionSchema.parse(request.body),
+        actorEmail()
+      ),
+      { requestId: request.id }
+    )
+  );
   app.post("/learning/questions", async (request) =>
     ok(await repository.createQuestion(questionSchema.parse(request.body), actorEmail()), {
       requestId: request.id
@@ -163,6 +189,11 @@ export function registerLearningRoutes(app: FastifyInstance) {
       ),
       { requestId: request.id }
     )
+  );
+  app.post("/learning/tests/:uuid/derive-from-q-and-a", async (request) =>
+    ok(await repository.deriveQuizFromQAndA(uuidParams.parse(request.params).uuid), {
+      requestId: request.id
+    })
   );
   app.post("/learning/tests/:uuid/attempts", async (request) =>
     ok(

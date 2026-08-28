@@ -7,6 +7,7 @@ import type {
   LearningAttemptInput,
   LearningClassInput,
   LearningCourseInput,
+  LearningDiscussionInput,
   LearningEnrollmentInput,
   LearningLessonInput,
   LearningQuestionInput,
@@ -36,7 +37,8 @@ export class LearningRepository {
       this.database
         .selectFrom("neot_learning_courses")
         .selectAll()
-        .orderBy("created_at", "desc")
+        .orderBy("position", "asc")
+        .orderBy("title", "asc")
         .execute(),
       this.database
         .selectFrom("neot_learning_classes")
@@ -102,11 +104,12 @@ export class LearningRepository {
     };
   }
 
-  async createCourse(input: LearningCourseInput, actor: string) {
+  async createCourse(input: LearningCourseInput, actor: string, requestedCode?: string) {
     const uuid = uid();
+    const code = await this.nextCourseCode(requestedCode || input.title);
     await this.database
       .insertInto("neot_learning_courses")
-      .values({ ...snakeCourse(input), created_by: actor, status: "active", uuid })
+      .values({ ...snakeCourse(input), code, created_by: actor, uuid })
       .execute();
     return this.find("neot_learning_courses", uuid);
   }
@@ -133,11 +136,16 @@ export class LearningRepository {
     }
     const course = await this.createCourse(
       {
-        code: "HTML-FOUNDATIONS",
+        author: "NEOT Learning",
+        coverImage: "",
         description: "Eight simple steps for reading, practicing, and checking core HTML skills.",
+        position: 0,
+        status: "active",
+        theme: "sunrise",
         title: "HTML Course"
       },
-      actor
+      actor,
+      "HTML-FOUNDATIONS"
     );
     const subject = await this.createSubject({
       courseUuid: String(course.uuid),
@@ -146,6 +154,7 @@ export class LearningRepository {
     });
     for (const lesson of htmlCourseLessons) {
       await this.createLesson({
+        author: "NEOT Learning",
         content: `${lesson.content}\n\nReference: ${lesson.sourceUrl}`,
         subjectUuid: String(subject.uuid),
         title: lesson.title
@@ -284,6 +293,7 @@ export class LearningRepository {
     await this.database
       .insertInto("neot_learning_lessons")
       .values({
+        author: input.author,
         content: input.content,
         position: await this.nextPosition(
           "neot_learning_lessons",
@@ -304,10 +314,52 @@ export class LearningRepository {
     await this.requireRecord("neot_learning_subjects", input.subjectUuid, "Subject");
     await this.database
       .updateTable("neot_learning_lessons")
-      .set({ content: input.content, subject_uuid: input.subjectUuid, title: input.title })
+      .set({
+        author: input.author,
+        content: input.content,
+        subject_uuid: input.subjectUuid,
+        title: input.title
+      })
       .where("uuid", "=", uuid)
       .execute();
     return this.find("neot_learning_lessons", uuid);
+  }
+
+  async lessonDiscussion(lessonUuid: string) {
+    await this.requireRecord("neot_learning_lessons", lessonUuid, "Lesson");
+    const posts = await this.database
+      .selectFrom("neot_learning_discussion_posts")
+      .selectAll()
+      .where("lesson_uuid", "=", lessonUuid)
+      .orderBy("created_at", "asc")
+      .execute();
+    return posts.map(camelRow);
+  }
+
+  async addLessonDiscussionPost(lessonUuid: string, input: LearningDiscussionInput, actor: string) {
+    await this.requireRecord("neot_learning_lessons", lessonUuid, "Lesson");
+    if (input.parentUuid) {
+      const parent = await this.database
+        .selectFrom("neot_learning_discussion_posts")
+        .select(["lesson_uuid", "parent_uuid"])
+        .where("uuid", "=", input.parentUuid)
+        .executeTakeFirst();
+      if (!parent || parent.lesson_uuid !== lessonUuid)
+        throw AppError.notFound("Discussion post was not found in this lesson.");
+      if (parent.parent_uuid) throw AppError.validation("Replies can only have one level.");
+    }
+    const uuid = uid();
+    await this.database
+      .insertInto("neot_learning_discussion_posts")
+      .values({
+        author: actor,
+        body: input.body,
+        lesson_uuid: lessonUuid,
+        parent_uuid: input.parentUuid ?? null,
+        uuid
+      })
+      .execute();
+    return this.find("neot_learning_discussion_posts", uuid);
   }
 
   async createQuestion(input: LearningQuestionInput, actor: string) {
@@ -327,7 +379,11 @@ export class LearningRepository {
   }
 
   async createAnswer(input: LearningAnswerInput, actor: string) {
-    await this.requireRecord("neot_learning_questions", input.questionUuid, "Question");
+    const question = await this.requireRecord(
+      "neot_learning_questions",
+      input.questionUuid,
+      "Question"
+    );
     const uuid = uid();
     await this.database
       .insertInto("neot_learning_answers")
@@ -344,6 +400,12 @@ export class LearningRepository {
       .set({ status: "answered" })
       .where("uuid", "=", input.questionUuid)
       .execute();
+    const tests = await this.database
+      .selectFrom("neot_learning_tests")
+      .select("uuid")
+      .where("lesson_uuid", "=", question.lesson_uuid)
+      .execute();
+    for (const test of tests) await this.deriveQuizFromQAndA(test.uuid);
     return this.find("neot_learning_answers", uuid);
   }
 
@@ -364,11 +426,73 @@ export class LearningRepository {
         uuid
       })
       .execute();
+    if (input.lessonUuid) await this.deriveQuizFromQAndA(uuid);
     return this.find("neot_learning_tests", uuid);
   }
 
+  async deriveQuizFromQAndA(testUuid: string) {
+    const test = await this.requireRecord("neot_learning_tests", testUuid, "Test");
+    if (!test.lesson_uuid)
+      throw AppError.validation("Connect this test to a lesson before deriving Q & A.");
+    const [questions, answers, existing] = await Promise.all([
+      this.database
+        .selectFrom("neot_learning_questions")
+        .selectAll()
+        .where("lesson_uuid", "=", test.lesson_uuid)
+        .orderBy("created_at", "asc")
+        .execute(),
+      this.database
+        .selectFrom("neot_learning_answers")
+        .innerJoin(
+          "neot_learning_questions",
+          "neot_learning_questions.uuid",
+          "neot_learning_answers.question_uuid"
+        )
+        .select([
+          "neot_learning_answers.answer_text",
+          "neot_learning_answers.question_uuid",
+          "neot_learning_answers.accepted",
+          "neot_learning_answers.created_at"
+        ])
+        .where("neot_learning_questions.lesson_uuid", "=", test.lesson_uuid)
+        .orderBy("neot_learning_answers.accepted", "desc")
+        .orderBy("neot_learning_answers.created_at", "asc")
+        .execute(),
+      this.database
+        .selectFrom("neot_learning_test_questions")
+        .select("prompt")
+        .where("test_uuid", "=", testUuid)
+        .execute()
+    ]);
+    const existingPrompts = new Set(existing.map((item) => item.prompt));
+    let created = 0;
+    for (const question of questions) {
+      const prompt = question.question_text.slice(0, 2000);
+      const correct = answers.find((answer) => answer.question_uuid === question.uuid)?.answer_text;
+      if (!correct || existingPrompts.has(prompt)) continue;
+      const correctOption = correct.slice(0, 160);
+      const distractors = answers
+        .filter((answer) => answer.question_uuid !== question.uuid)
+        .map((answer) => answer.answer_text.slice(0, 160))
+        .filter(
+          (answer, index, values) => answer !== correctOption && values.indexOf(answer) === index
+        )
+        .slice(0, 3);
+      if (!distractors.length) continue;
+      await this.addQuizQuestion(testUuid, {
+        correctOption,
+        options: shuffleOptions([correctOption, ...distractors], created),
+        points: 1,
+        prompt
+      });
+      existingPrompts.add(prompt);
+      created += 1;
+    }
+    return { created, eligible: questions.length, testUuid };
+  }
+
   async addQuizQuestion(testUuid: string, input: LearningQuizQuestionInput) {
-    await this.requireRecord("neot_learning_tests", testUuid, "Test");
+    const test = await this.requireRecord("neot_learning_tests", testUuid, "Test");
     if (!input.options.includes(input.correctOption))
       throw AppError.validation("The correct answer must be one of the quiz options.");
     const uuid = uid();
@@ -384,7 +508,59 @@ export class LearningRepository {
         uuid
       })
       .execute();
+    await this.syncQuizQuestionToQAndA(test.lesson_uuid, input.prompt, input.correctOption);
     return { ...(await this.find("neot_learning_test_questions", uuid)), correctOption: undefined };
+  }
+
+  private async syncQuizQuestionToQAndA(
+    lessonUuid: string | null,
+    questionText: string,
+    answerText: string
+  ) {
+    if (!lessonUuid) return;
+    let question = await this.database
+      .selectFrom("neot_learning_questions")
+      .select(["uuid", "status"])
+      .where("lesson_uuid", "=", lessonUuid)
+      .where("question_text", "=", questionText)
+      .executeTakeFirst();
+    if (!question) {
+      const uuid = uid();
+      await this.database
+        .insertInto("neot_learning_questions")
+        .values({
+          asked_by: "NEOT Learning",
+          lesson_uuid: lessonUuid,
+          question_text: questionText,
+          status: "answered",
+          uuid
+        })
+        .execute();
+      question = { status: "answered", uuid };
+    } else if (question.status !== "answered") {
+      await this.database
+        .updateTable("neot_learning_questions")
+        .set({ status: "answered" })
+        .where("uuid", "=", question.uuid)
+        .execute();
+    }
+    const answer = await this.database
+      .selectFrom("neot_learning_answers")
+      .select("uuid")
+      .where("question_uuid", "=", question.uuid)
+      .where("answer_text", "=", answerText)
+      .executeTakeFirst();
+    if (answer) return;
+    await this.database
+      .insertInto("neot_learning_answers")
+      .values({
+        accepted: 1,
+        answer_text: answerText,
+        answered_by: "NEOT Learning",
+        question_uuid: question.uuid,
+        uuid: uid()
+      })
+      .execute();
   }
 
   async submitAttempt(testUuid: string, input: LearningAttemptInput, studentEmail: string) {
@@ -496,6 +672,26 @@ export class LearningRepository {
       .executeTakeFirst();
     return Number(result?.position ?? 0);
   }
+
+  private async nextCourseCode(value: string) {
+    const base =
+      value
+        .normalize("NFKD")
+        .replace(/[^a-z0-9]+/giu, "-")
+        .replace(/^-|-$/gu, "")
+        .toUpperCase()
+        .slice(0, 32) || "COURSE";
+    const existing = await this.database
+      .selectFrom("neot_learning_courses")
+      .select("code")
+      .where("code", "like", `${base}%`)
+      .execute();
+    const codes = new Set(existing.map((course) => course.code));
+    if (!codes.has(base)) return base;
+    let suffix = 2;
+    while (codes.has(`${base}-${suffix}`)) suffix += 1;
+    return `${base}-${suffix}`;
+  }
 }
 
 type TableName =
@@ -509,15 +705,20 @@ type TableName =
   | "neot_learning_tests"
   | "neot_learning_test_questions"
   | "neot_learning_attempts"
-  | "neot_learning_progress";
+  | "neot_learning_progress"
+  | "neot_learning_discussion_posts";
 type PositionTable =
   "neot_learning_subjects" | "neot_learning_lessons" | "neot_learning_test_questions";
 type ParentColumn = "course_uuid" | "subject_uuid" | "test_uuid";
 
 const uid = () => randomBytes(16).toString("hex");
 const snakeCourse = (input: LearningCourseInput) => ({
-  code: input.code,
+  author: input.author,
+  cover_image: input.coverImage,
   description: input.description,
+  position: input.position,
+  status: input.status,
+  theme: input.theme,
   title: input.title
 });
 const camelRow = <T extends Record<string, unknown>>(row: T) =>

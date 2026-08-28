@@ -239,6 +239,7 @@ function neotPermission(request: { method: string; url: string }) {
     if (action === "view") return "neot.learning.view";
     if (
       /\/learning\/lessons\/[a-f0-9]{32}\/progress(?:\?|$)/u.test(request.url) ||
+      /\/learning\/lessons\/[a-f0-9]{32}\/discussion(?:\?|$)/u.test(request.url) ||
       /\/learning\/tests\/[a-f0-9]{32}\/attempts(?:\?|$)/u.test(request.url) ||
       /\/learning\/(?:questions|answers)(?:\?|$)/u.test(request.url)
     ) {

@@ -5,10 +5,29 @@ import 'learn_screen.dart';
 import 'lesson_screen.dart';
 import 'models.dart';
 import 'neot_logo.dart';
+import 'q_and_a_screen.dart';
+import 'update_menu.dart';
+import 'update_prompt.dart';
+import 'update_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.controller});
+  const HomeScreen({
+    super.key,
+    required this.controller,
+    required this.update,
+    required this.updateService,
+    required this.versionLabel,
+    required this.checkingForUpdate,
+    required this.onCheckForUpdate,
+  });
+
   final LearningController controller;
+  final AppUpdate? update;
+  final UpdateService updateService;
+  final Future<String> versionLabel;
+  final bool checkingForUpdate;
+  final Future<void> Function() onCheckForUpdate;
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -19,6 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final snapshot = widget.controller.snapshot!;
     return Scaffold(
+      drawer: UpdateMenu(
+        checking: widget.checkingForUpdate,
+        onCheck: widget.onCheckForUpdate,
+        onSignOut: widget.controller.signOut,
+        versionLabel: widget.versionLabel,
+      ),
       appBar: AppBar(
         title: const Row(
           children: [
@@ -27,19 +52,22 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('NEOT', style: TextStyle(fontWeight: FontWeight.w800)),
           ],
         ),
-        actions: [
-          IconButton(
-            onPressed: widget.controller.signOut,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
       ),
-      body: IndexedStack(
-        index: tab,
+      body: Column(
         children: [
-          _Dashboard(snapshot: snapshot, open: _open),
-          LearnScreen(snapshot: snapshot, openLesson: _open),
-          _Progress(snapshot: snapshot),
+          if (widget.update != null)
+            UpdateBanner(update: widget.update!, onTap: _showUpdate),
+          Expanded(
+            child: IndexedStack(
+              index: tab,
+              children: [
+                _Dashboard(snapshot: snapshot, open: _open),
+                LearnScreen(snapshot: snapshot, openLesson: _open),
+                QAndAScreen(controller: widget.controller),
+                _Progress(snapshot: snapshot),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -55,6 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.menu_book_outlined),
             selectedIcon: Icon(Icons.menu_book),
             label: 'Learn',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.forum_outlined),
+            selectedIcon: Icon(Icons.forum),
+            label: 'Q & A',
           ),
           NavigationDestination(
             icon: Icon(Icons.monitor_heart_outlined),
@@ -74,6 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
     setState(() {});
+  }
+
+  Future<void> _showUpdate() async {
+    final update = widget.update;
+    if (update == null) return;
+    await showUpdatePrompt(context, update, widget.updateService);
   }
 }
 

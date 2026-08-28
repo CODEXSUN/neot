@@ -163,8 +163,10 @@ export default defineConfig(({ command, mode }) => {
             proxy: {
               "/api/platform": {
                 changeOrigin: false,
+                proxyTimeout: 12_000,
                 rewrite: (path) => path.replace(/^\/api\/platform/u, "") || "/",
-                target: platformApiTarget(runtimeEnv)
+                target: platformApiTarget(runtimeEnv),
+                timeout: 12_000
               }
             }
           }

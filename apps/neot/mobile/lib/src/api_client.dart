@@ -57,6 +57,22 @@ class ApiClient {
     );
   }
 
+  Future<void> askQuestion(String lessonUuid, String text) async {
+    await _request(
+      '/api/neot/learning/questions',
+      method: 'POST',
+      body: {'lessonUuid': lessonUuid, 'questionText': text},
+    );
+  }
+
+  Future<void> answerQuestion(String questionUuid, String text) async {
+    await _request(
+      '/api/neot/learning/answers',
+      method: 'POST',
+      body: {'questionUuid': questionUuid, 'answerText': text},
+    );
+  }
+
   Future<Attempt> submitQuiz(
     String testUuid,
     Map<String, String> answers,

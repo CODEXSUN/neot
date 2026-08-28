@@ -34,6 +34,15 @@ const workspace = (
   title
 });
 
+const learningWorkspaceIds = new Set([
+  "courses",
+  "lessons",
+  "performance",
+  "questions",
+  "subjects",
+  "tests"
+]);
+
 const workspaces = Object.freeze([
   workspace("dashboard", "Dashboard", "My Work", () =>
     import("./modules/dashboard").then((module) => ({
@@ -48,11 +57,6 @@ const workspaces = Object.freeze([
   workspace("messenger", "Messenger", "Work", () =>
     import("./modules/messaging").then((module) => ({
       default: module.MessagingWorkspace
-    }))
-  ),
-  workspace("learning", "Learning Home", "Learning", () =>
-    import("./modules/learning").then((module) => ({
-      default: () => <module.LearningWorkspace section="overview" />
     }))
   ),
   workspace("courses", "Courses", "Learning", () =>
@@ -75,14 +79,9 @@ const workspaces = Object.freeze([
       default: () => <module.LearningWorkspace section="lessons" />
     }))
   ),
-  workspace("questions", "Questions", "Learning", () =>
+  workspace("questions", "Q & A", "Learning", () =>
     import("./modules/learning").then((module) => ({
       default: () => <module.LearningWorkspace section="questions" />
-    }))
-  ),
-  workspace("answers", "Answers", "Learning", () =>
-    import("./modules/learning").then((module) => ({
-      default: () => <module.LearningWorkspace section="answers" />
     }))
   ),
   workspace("tests", "Tests & Quizzes", "Learning", () =>
@@ -243,58 +242,52 @@ export const neotWebBundle = Object.freeze({
       },
       {
         icon: GraduationCapIcon,
-        isActive: activeWorkspaceId === "learning",
-        title: "Learning Home",
-        url: "/app/neot/learning"
-      },
-      {
-        icon: GraduationCapIcon,
-        isActive: activeWorkspaceId === "courses",
-        title: "Courses",
-        url: "/app/neot/courses"
-      },
-      {
-        icon: BookOpenIcon,
-        isActive: activeWorkspaceId === "subjects",
-        title: "Subjects",
-        url: "/app/neot/subjects"
-      },
-      {
-        icon: ListTodoIcon,
-        isActive: activeWorkspaceId === "lessons",
-        title: "Lessons",
-        url: "/app/neot/lessons"
-      },
-      {
-        icon: CircleHelpIcon,
-        isActive: activeWorkspaceId === "questions" || activeWorkspaceId === "answers",
+        isActive: learningWorkspaceIds.has(activeWorkspaceId),
         items: [
           {
+            icon: GraduationCapIcon,
+            isActive: activeWorkspaceId === "courses",
+            title: "Courses",
+            url: "/app/neot/courses"
+          },
+          {
+            icon: BookOpenIcon,
+            isActive: activeWorkspaceId === "subjects",
+            title: "Subjects",
+            url: "/app/neot/subjects"
+          },
+          {
+            icon: ListTodoIcon,
+            isActive: activeWorkspaceId === "lessons",
+            title: "Lessons",
+            url: "/app/neot/lessons"
+          },
+          {
+            icon: CircleHelpIcon,
             isActive: activeWorkspaceId === "questions",
-            title: "Questions",
+            title: "Q & A",
             url: "/app/neot/questions"
           },
-          { isActive: activeWorkspaceId === "answers", title: "Answers", url: "/app/neot/answers" }
+          {
+            icon: ClipboardCheckIcon,
+            isActive: activeWorkspaceId === "tests",
+            title: "Tests & Quizzes",
+            url: "/app/neot/tests"
+          },
+          {
+            icon: ChartNoAxesColumnIcon,
+            isActive: activeWorkspaceId === "performance",
+            title: "Performance",
+            url: "/app/neot/performance"
+          }
         ],
-        title: "Questions & Answers"
+        title: "Learning"
       },
       {
         icon: FolderKanbanIcon,
         isActive: activeWorkspaceId === "classes",
         title: "Classes",
         url: "/app/neot/classes"
-      },
-      {
-        icon: ClipboardCheckIcon,
-        isActive: activeWorkspaceId === "tests",
-        title: "Tests & Quizzes",
-        url: "/app/neot/tests"
-      },
-      {
-        icon: ChartNoAxesColumnIcon,
-        isActive: activeWorkspaceId === "performance",
-        title: "Performance",
-        url: "/app/neot/performance"
       }
     ];
   },

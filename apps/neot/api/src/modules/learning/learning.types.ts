@@ -1,6 +1,14 @@
 export type LearningRole = "master" | "student";
 
-export type LearningCourseInput = { code: string; description: string; title: string };
+export type LearningCourseInput = {
+  author: string;
+  coverImage: string;
+  description: string;
+  position: number;
+  status: "active" | "archived" | "draft";
+  theme: "berry" | "forest" | "ocean" | "slate" | "sunrise";
+  title: string;
+};
 export type LearningClassInput = {
   courseUuid: string;
   masterEmail: string;
@@ -15,7 +23,13 @@ export type LearningEnrollmentInput = {
   role: LearningRole;
 };
 export type LearningSubjectInput = { courseUuid: string; description: string; title: string };
-export type LearningLessonInput = { content: string; subjectUuid: string; title: string };
+export type LearningLessonInput = {
+  author: string;
+  content: string;
+  subjectUuid: string;
+  title: string;
+};
+export type LearningDiscussionInput = { body: string; parentUuid?: string | null | undefined };
 export type LearningQuestionInput = { lessonUuid: string; questionText: string };
 export type LearningAnswerInput = { answerText: string; questionUuid: string };
 export type LearningTestInput = {

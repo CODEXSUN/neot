@@ -1,8 +1,22 @@
 type BaseRecord = { createdAt: string; id: number; uuid: string };
 export type LearningCourse = BaseRecord & {
+  author: string;
   code: string;
+  coverImage: string;
   description: string;
-  status: string;
+  position: number;
+  status: "active" | "archived" | "draft";
+  theme: CourseTheme;
+  title: string;
+};
+export type CourseTheme = "berry" | "forest" | "ocean" | "slate" | "sunrise";
+export type LearningCoursePayload = {
+  author: string;
+  coverImage: string;
+  description: string;
+  position: number;
+  status: LearningCourse["status"];
+  theme: CourseTheme;
   title: string;
 };
 export type LearningClass = BaseRecord & {
@@ -27,11 +41,18 @@ export type LearningSubject = BaseRecord & {
   title: string;
 };
 export type LearningLesson = BaseRecord & {
+  author: string;
   content: string;
   position: number;
   status: string;
   subjectUuid: string;
   title: string;
+};
+export type LearningDiscussionPost = BaseRecord & {
+  author: string;
+  body: string;
+  lessonUuid: string;
+  parentUuid: string | null;
 };
 export type LearningQuestion = BaseRecord & {
   askedBy: string;

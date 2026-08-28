@@ -48,6 +48,12 @@ class UpdateService {
 
   final http.Client _client;
 
+  Future<String> currentVersionLabel() async {
+    final appInfo = await _channel.invokeMapMethod<String, dynamic>('appInfo');
+    final versionName = appInfo?['versionName'] as String?;
+    return versionName == null ? 'Version unavailable' : 'v$versionName';
+  }
+
   Future<AppUpdate?> check() async {
     final appInfo = await _channel.invokeMapMethod<String, dynamic>('appInfo');
     final currentVersionCode = (appInfo?['versionCode'] as num).toInt();

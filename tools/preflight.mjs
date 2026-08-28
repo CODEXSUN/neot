@@ -51,6 +51,7 @@ if (app === "platform-api") {
   ensurePlatformApiDependencies();
 }
 
+console.log(`  - Starting ${config.displayName} development watcher`);
 const child = spawn(
   config.command,
   [...config.args, ...(app.endsWith("-web") ? ["--host", host, "--port", String(port)] : [])],
@@ -70,6 +71,16 @@ const child = spawn(
   }
 );
 
+child.once("spawn", () => {
+  console.log(`  ok ${config.displayName} watcher started (PID ${child.pid})`);
+  if (app === "platform-api") {
+    void reportApiReadiness(child, host, port);
+  }
+});
+child.once("error", (error) => {
+  console.error(`  x Could not start ${config.displayName} watcher: ${error.message}`);
+  process.exit(1);
+});
 child.on("exit", (code) => process.exit(code ?? 0));
 
 for (const signal of ["SIGINT", "SIGTERM"]) {
@@ -333,6 +344,30 @@ function probePort(port, host) {
 
 function waitForPortRelease() {
   return new Promise((resolveWait) => setTimeout(resolveWait, 100));
+}
+
+async function reportApiReadiness(childProcess, apiHost, apiPort) {
+  const healthUrl = `http://${apiHost}:${apiPort}/health`;
+  const startedAt = Date.now();
+  console.log(`  - Waiting for API health at ${healthUrl}`);
+
+  while (Date.now() - startedAt < 60_000 && childProcess.exitCode === null) {
+    try {
+      const response = await fetch(healthUrl, { signal: AbortSignal.timeout(2_000) });
+      if (response.ok) {
+        console.log(`  ok API ready in ${Date.now() - startedAt}ms; keep this terminal open\n`);
+        console.log("  i This command runs the API only. The web app uses npm run dev:web.\n");
+        return;
+      }
+    } catch {
+      // Startup can briefly refuse connections while the database and modules initialize.
+    }
+    await new Promise((resolveWait) => setTimeout(resolveWait, 400));
+  }
+
+  if (childProcess.exitCode === null) {
+    console.warn("  ! API watcher is running, but /health was not ready after 60 seconds");
+  }
 }
 
 async function waitForPlatformApi(apiUrl) {

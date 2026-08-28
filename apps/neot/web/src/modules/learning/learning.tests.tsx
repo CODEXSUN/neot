@@ -1,17 +1,26 @@
 import { useMemo, useState } from "react";
-import { ArrowLeftIcon, CheckCircle2Icon, PlusIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  CheckCircle2Icon,
+  CircleHelpIcon,
+  SparklesIcon
+} from "lucide-react";
 import { Button } from "@neot/ui/components/button";
 import { Input } from "@neot/ui/components/input";
+import { toast } from "sonner";
 import type { LearningSnapshot, LearningTest } from "./learning.types";
 
 export function TestsAndQuizzes({
   addQuestion,
   canManage,
+  deriveQuiz,
   snapshot,
   submitAttempt
 }: {
   addQuestion: (testUuid: string, payload: Record<string, unknown>) => void;
   canManage: boolean;
+  deriveQuiz: (testUuid: string) => Promise<{ created: number; eligible: number }>;
   snapshot: LearningSnapshot;
   submitAttempt: (testUuid: string, answers: Record<string, string>) => void;
 }) {
@@ -22,6 +31,7 @@ export function TestsAndQuizzes({
       <QuizRunner
         addQuestion={addQuestion}
         canManage={canManage}
+        deriveQuiz={deriveQuiz}
         onBack={() => setSelectedUuid("")}
         snapshot={snapshot}
         submitAttempt={submitAttempt}
@@ -62,6 +72,7 @@ export function TestsAndQuizzes({
 function QuizRunner({
   addQuestion,
   canManage,
+  deriveQuiz,
   onBack,
   snapshot,
   submitAttempt,
@@ -69,6 +80,7 @@ function QuizRunner({
 }: {
   addQuestion: (testUuid: string, payload: Record<string, unknown>) => void;
   canManage: boolean;
+  deriveQuiz: (testUuid: string) => Promise<{ created: number; eligible: number }>;
   onBack: () => void;
   snapshot: LearningSnapshot;
   submitAttempt: (testUuid: string, answers: Record<string, string>) => void;
@@ -80,26 +92,43 @@ function QuizRunner({
   );
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [adding, setAdding] = useState(false);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const question = questions[questionIndex];
   const latest = snapshot.attempts.find((item) => item.testUuid === test.uuid);
   return (
-    <section className="py-7">
-      <div className="flex items-start gap-3 border-b pb-5">
-        <Button size="icon" variant="ghost" onClick={onBack}>
+    <section className="pt-4">
+      <div className="flex items-center justify-between pb-2">
+        <Button aria-label="Back to tests" size="icon" variant="ghost" onClick={onBack}>
           <ArrowLeftIcon />
         </Button>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            Quiz
-          </p>
-          <h2 className="pt-1 text-xl font-semibold">{test.title}</h2>
-          <p className="pt-2 text-sm leading-6 text-muted-foreground">
-            {test.instructions || `Score ${test.passPercentage}% or higher to pass.`}
-          </p>
-        </div>
         {canManage ? (
-          <Button variant="outline" onClick={() => setAdding((value) => !value)}>
-            <PlusIcon /> Add question
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              onClick={() =>
+                void deriveQuiz(test.uuid)
+                  .then((result) =>
+                    result.created
+                      ? toast.success(
+                          `${result.created} quiz question${result.created === 1 ? "" : "s"} built from Q & A.`
+                        )
+                      : toast.info(
+                          result.eligible
+                            ? "No new quiz questions were needed."
+                            : "Add answers to at least two lesson questions first."
+                        )
+                  )
+                  .catch((error: unknown) =>
+                    toast.error(error instanceof Error ? error.message : "Quiz could not be built.")
+                  )
+              }
+            >
+              <SparklesIcon /> Build from Q & A
+            </Button>
+            <Button variant="ghost" onClick={() => setAdding((value) => !value)}>
+              <CircleHelpIcon /> Add question
+            </Button>
+          </div>
         ) : null}
       </div>
       {adding ? (
@@ -117,12 +146,13 @@ function QuizRunner({
           submitAttempt(test.uuid, answers);
         }}
       >
-        <div className="divide-y">
-          {questions.map((question, index) => (
+        {question ? (
+          <>
             <fieldset className="py-7" key={question.uuid}>
-              <legend className="text-base font-semibold">
-                {index + 1}. {question.prompt}
-              </legend>
+              <legend className="text-base font-semibold">{question.prompt}</legend>
+              <p className="pt-2 text-sm text-muted-foreground">
+                Question {questionIndex + 1} of {questions.length}
+              </p>
               <div className="grid gap-3 pt-4">
                 {question.options.map((option) => (
                   <label
@@ -142,25 +172,41 @@ function QuizRunner({
                 ))}
               </div>
             </fieldset>
-          ))}
-        </div>
-        {questions.length ? (
-          <div className="flex items-center justify-between border-t py-6">
-            {latest ? (
-              <p className="flex items-center gap-2 text-sm">
-                <CheckCircle2Icon
-                  className={latest.passed ? "text-emerald-600" : "text-amber-600"}
-                  size={18}
-                />{" "}
-                Latest score: <strong>{latest.percentage}%</strong>
-              </p>
-            ) : (
-              <span />
-            )}
-            <Button disabled={Object.keys(answers).length !== questions.length} type="submit">
-              Submit quiz
-            </Button>
-          </div>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t py-6">
+              <div className="flex items-center gap-2">
+                <Button
+                  disabled={questionIndex === 0}
+                  onClick={() => setQuestionIndex((index) => Math.max(0, index - 1))}
+                  type="button"
+                  variant="outline"
+                >
+                  <ArrowLeftIcon /> Previous
+                </Button>
+                {questionIndex < questions.length - 1 ? (
+                  <Button
+                    disabled={!answers[question.uuid]}
+                    onClick={() => setQuestionIndex((index) => index + 1)}
+                    type="button"
+                  >
+                    Forward <ArrowRightIcon />
+                  </Button>
+                ) : (
+                  <Button disabled={Object.keys(answers).length !== questions.length} type="submit">
+                    Submit quiz
+                  </Button>
+                )}
+              </div>
+              {latest ? (
+                <p className="flex items-center gap-2 text-sm">
+                  <CheckCircle2Icon
+                    className={latest.passed ? "text-emerald-600" : "text-amber-600"}
+                    size={18}
+                  />
+                  Latest score: <strong>{latest.percentage}%</strong>
+                </p>
+              ) : null}
+            </div>
+          </>
         ) : null}
       </form>
     </section>

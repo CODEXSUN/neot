@@ -134,7 +134,7 @@ export function LearningSectionRows({
   section,
   snapshot
 }: {
-  section: Exclude<LearningSection, "overview" | "courses" | "classes" | "tests" | "performance">;
+  section: Exclude<LearningSection, "courses" | "classes" | "tests" | "performance">;
   snapshot: LearningSnapshot;
 }) {
   const rows = sectionRows(section, snapshot);
@@ -216,27 +216,6 @@ export function PerformanceRows({ snapshot }: { snapshot: LearningSnapshot }) {
           Performance appears after students complete their first quiz.
         </p>
       ) : null}
-    </section>
-  );
-}
-
-export function Overview({ snapshot }: { snapshot: LearningSnapshot }) {
-  const summaries = [
-    ["Courses", snapshot.courses.length],
-    ["Subjects", snapshot.subjects.length],
-    ["Lessons", snapshot.lessons.length],
-    ["Questions", snapshot.questions.length],
-    ["Tests", snapshot.tests.length],
-    ["Attempts", snapshot.attempts.length]
-  ] as const;
-  return (
-    <section className="grid gap-x-10 py-8 sm:grid-cols-2 lg:grid-cols-3">
-      {summaries.map(([label, value]) => (
-        <div className="border-b py-7" key={label}>
-          <span className="text-sm text-muted-foreground">{label}</span>
-          <strong className="block pt-3 text-4xl tracking-tight">{value}</strong>
-        </div>
-      ))}
     </section>
   );
 }

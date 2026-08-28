@@ -14,7 +14,7 @@ export function LearningCreateForm({
 }: {
   onClose: () => void;
   onSave: Save;
-  section: Exclude<LearningSection, "overview" | "performance">;
+  section: Exclude<LearningSection, "courses" | "performance">;
   snapshot: LearningSnapshot;
 }) {
   const [values, setValues] = useState<Record<string, string>>({
@@ -30,33 +30,6 @@ export function LearningCreateForm({
   };
   return (
     <form className="mt-7 grid gap-5 border-y py-6 sm:grid-cols-2" onSubmit={submit}>
-      {section === "courses" ? (
-        <>
-          <Field label="Course code">
-            <Input
-              required
-              value={values.code ?? ""}
-              onChange={(event) => set("code", event.target.value)}
-              placeholder="NEOT-WEB-101"
-            />
-          </Field>
-          <Field label="Course name">
-            <Input
-              required
-              value={values.title ?? ""}
-              onChange={(event) => set("title", event.target.value)}
-              placeholder="Web foundations"
-            />
-          </Field>
-          <WideField label="Course purpose">
-            <textarea
-              className="min-h-28 rounded-md border bg-background px-3 py-2"
-              value={values.description ?? ""}
-              onChange={(event) => set("description", event.target.value)}
-            />
-          </WideField>
-        </>
-      ) : null}
       {section === "subjects" ? (
         <>
           <CourseSelect
@@ -94,6 +67,13 @@ export function LearningCreateForm({
               onChange={(event) => set("title", event.target.value)}
             />
           </Field>
+          <Field label="Author">
+            <Input
+              value={values.author ?? ""}
+              onChange={(event) => set("author", event.target.value)}
+              placeholder="Master or organisation name"
+            />
+          </Field>
           <WideField label="Lesson content">
             <textarea
               className="min-h-32 rounded-md border bg-background px-3 py-2"
@@ -116,23 +96,6 @@ export function LearningCreateForm({
               className="min-h-28 rounded-md border bg-background px-3 py-2"
               value={values.questionText ?? ""}
               onChange={(event) => set("questionText", event.target.value)}
-            />
-          </WideField>
-        </>
-      ) : null}
-      {section === "answers" ? (
-        <>
-          <QuestionSelect
-            snapshot={snapshot}
-            value={values.questionUuid ?? ""}
-            onChange={(value) => set("questionUuid", value)}
-          />
-          <WideField label="Answer">
-            <textarea
-              required
-              className="min-h-32 rounded-md border bg-background px-3 py-2"
-              value={values.answerText ?? ""}
-              onChange={(event) => set("answerText", event.target.value)}
             />
           </WideField>
         </>
@@ -286,19 +249,15 @@ export function EnrollmentForm({ onSave, snapshot }: { onSave: Save; snapshot: L
 
 function createPayload(section: string, values: Record<string, string>) {
   const resources: Record<string, string> = {
-    answers: "answers",
     classes: "classes",
-    courses: "courses",
     lessons: "lessons",
     questions: "questions",
     subjects: "subjects",
     tests: "tests"
   };
   const fields: Record<string, string[]> = {
-    answers: ["answerText", "questionUuid"],
     classes: ["courseUuid", "masterEmail", "scheduleText", "title"],
-    courses: ["code", "description", "title"],
-    lessons: ["content", "subjectUuid", "title"],
+    lessons: ["author", "content", "subjectUuid", "title"],
     questions: ["lessonUuid", "questionText"],
     subjects: ["courseUuid", "description", "title"],
     tests: ["courseUuid", "instructions", "lessonUuid", "passPercentage", "title"]
@@ -369,25 +328,6 @@ function LessonSelect({
         {snapshot.lessons.map((item) => (
           <option key={item.uuid} value={item.uuid}>
             {item.title}
-          </option>
-        ))}
-      </select>
-    </Field>
-  );
-}
-function QuestionSelect({ onChange, snapshot, value }: SelectProps) {
-  return (
-    <Field label="Question">
-      <select
-        required
-        className="h-9 rounded-md border bg-background px-3"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        <option value="">Select question</option>
-        {snapshot.questions.map((item) => (
-          <option key={item.uuid} value={item.uuid}>
-            {item.questionText}
           </option>
         ))}
       </select>

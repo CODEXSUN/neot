@@ -57,7 +57,7 @@ export function DashboardWorkspace() {
           <LessonList empty="No lesson needs your focus today." lessons={focus} />
         </Section>
 
-        <Section href="/app/neot/learning" title="Learning health">
+        <Section href="/app/neot/courses" title="Learning health">
           <div className="divide-y rounded-lg border bg-card">
             <HealthRow
               good={!attention}

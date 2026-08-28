@@ -9,6 +9,6 @@ export function canSelectApplicationTheme(role: string | undefined) {
 }
 
 export function applicationEntryPath(role?: string) {
-  if (role === "student" || role === "master") return "/app/neot/learning";
+  if (role === "student" || role === "master") return "/app/neot/courses";
   return standardDeskPath;
 }

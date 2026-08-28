@@ -60,10 +60,16 @@ import {
   migrateMessagingModule
 } from "../modules/messaging/messaging.migration.js";
 import {
+  learningCourseMetadataMigration,
+  learningLessonDiscussionMigration,
   learningMigration,
   learningProgressMigration,
+  learningQuizQAndABackfillMigration,
+  migrateLearningCourseMetadata,
+  migrateLearningLessonDiscussions,
+  migrateLearningModule,
   migrateLearningProgress,
-  migrateLearningModule
+  migrateLearningQuizQAndABackfill
 } from "../modules/learning/learning.migration.js";
 
 const databaseContext = new AsyncLocalStorage<Kysely<NEOTDatabase>>();
@@ -87,6 +93,9 @@ const migrationSteps = [
   { migrate: migrateMessagingModule, name: messagingMigration.key },
   { migrate: migrateLearningModule, name: learningMigration.key },
   { migrate: migrateLearningProgress, name: learningProgressMigration.key },
+  { migrate: migrateLearningCourseMetadata, name: learningCourseMetadataMigration.key },
+  { migrate: migrateLearningLessonDiscussions, name: learningLessonDiscussionMigration.key },
+  { migrate: migrateLearningQuizQAndABackfill, name: learningQuizQAndABackfillMigration.key },
   {
     migrate: migrateProjectManagerModule,
     name: projectManagerMigration.key

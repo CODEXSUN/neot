@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, type MouseEvent } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { EyeIcon, EyeOffIcon, Settings2Icon, ShieldCheckIcon } from "lucide-react";
 import { neotWebBundle } from "@neot/neot-web";
@@ -6,7 +6,10 @@ import { honeyChatClient } from "@neot/neot-web/modules/honey";
 import { useNotificationCenter } from "@neot/neot-web/modules/notification";
 import { GlobalLoader } from "@neot/ui/components/global-loader";
 import { ApplicationLayout } from "@neot/ui/layouts/application-layout";
-import type { SidemenuItem } from "@neot/ui/blocks/menu/sidemenu/sub/sidemenu-section";
+import type {
+  SidemenuItem,
+  SidemenuSubItem
+} from "@neot/ui/blocks/menu/sidemenu/sub/sidemenu-section";
 import type { GlobalSearchItem } from "@neot/ui/blocks/menu/sidemenu/global-search";
 import { AuthGate } from "../../shared/auth/AuthGate";
 import { getToken, logout } from "../../shared/api/platform-api";
@@ -33,7 +36,8 @@ type Claims = { email: string; name?: string; permissions?: string[]; role?: str
 
 export function AppDesk() {
   const navigate = useNavigate();
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const location = useRouterState({ select: (state) => state.location });
+  const pathname = location.pathname;
   const claims = readClaims();
   const notifications = useNotificationCenter();
   const [honeyVisible, setHoneyVisible] = useState(
@@ -89,7 +93,7 @@ export function AppDesk() {
         menuItems={
           showingIdentity
             ? buildIdentityMenu(identityPage!, navigate, administrator)
-            : buildApplicationMenu(workspace?.id ?? "", honeyVisible, () => {
+            : buildApplicationMenu(workspace?.id ?? "", honeyVisible, navigate, () => {
                 const next = !honeyVisible;
                 setHoneyVisible(next);
                 window.localStorage.setItem("neot.screen-companion.visible", String(next));
@@ -131,19 +135,21 @@ export function AppDesk() {
             : [])
         ]}
       >
-        <Suspense fallback={<GlobalLoader />}>
-          {showingSettings ? (
-            <ApplicationSettingsWorkspace />
-          ) : showingIdentity ? (
-            <main className="mx-auto w-[calc(100%-2rem)] max-w-[92rem] space-y-5 py-4 lg:w-[calc(100%-3rem)] lg:py-5">
-              {renderIdentityPage(identityPage!, claims.email)}
-            </main>
-          ) : workspace ? (
-            <workspace.component />
-          ) : (
-            <GlobalLoader />
-          )}
-        </Suspense>
+        <div onClick={(event) => handleWorkspaceLink(event, navigate)}>
+          <Suspense fallback={<DelayedGlobalLoader />}>
+            {showingSettings ? (
+              <ApplicationSettingsWorkspace />
+            ) : showingIdentity ? (
+              <main className="mx-auto w-[calc(100%-2rem)] max-w-[92rem] space-y-5 py-4 lg:w-[calc(100%-3rem)] lg:py-5">
+                {renderIdentityPage(identityPage!, claims.email)}
+              </main>
+            ) : workspace ? (
+              <workspace.component />
+            ) : (
+              <DelayedGlobalLoader />
+            )}
+          </Suspense>
+        </div>
       </ApplicationLayout>
     </AuthGate>
   );
@@ -152,22 +158,83 @@ export function AppDesk() {
 function buildApplicationMenu(
   activeWorkspaceId: string,
   honeyVisible: boolean,
+  navigate: ReturnType<typeof useNavigate>,
   toggleHoney: () => void
 ) {
-  return [
-    ...neotWebBundle.menuItems(activeWorkspaceId),
-    {
-      icon: Settings2Icon,
-      items: [
-        {
-          icon: honeyVisible ? EyeOffIcon : EyeIcon,
-          onSelect: toggleHoney,
-          title: honeyVisible ? "Hide Honey" : "Show Honey"
-        }
-      ],
-      title: "Settings"
-    }
-  ];
+  return connectMenuNavigation(
+    [
+      ...neotWebBundle.menuItems(activeWorkspaceId),
+      {
+        icon: Settings2Icon,
+        items: [
+          {
+            icon: honeyVisible ? EyeOffIcon : EyeIcon,
+            onSelect: toggleHoney,
+            title: honeyVisible ? "Hide Honey" : "Show Honey"
+          }
+        ],
+        title: "Settings"
+      }
+    ],
+    navigate
+  );
+}
+
+function connectMenuNavigation(
+  items: SidemenuItem[],
+  navigate: ReturnType<typeof useNavigate>
+): SidemenuItem[] {
+  return items.map((item) => {
+    const { url, ...rest } = item;
+    return {
+      ...rest,
+      ...(url ? { onSelect: () => void navigate({ to: url }) } : {}),
+      ...(item.items ? { items: connectSubMenuNavigation(item.items, navigate) } : {})
+    };
+  });
+}
+
+function connectSubMenuNavigation(
+  items: SidemenuSubItem[],
+  navigate: ReturnType<typeof useNavigate>
+): SidemenuSubItem[] {
+  return items.map((item) => {
+    const { url, ...rest } = item;
+    return {
+      ...rest,
+      ...(url ? { onSelect: () => void navigate({ to: url }) } : {}),
+      ...(item.items ? { items: connectSubMenuNavigation(item.items, navigate) } : {})
+    };
+  });
+}
+
+function handleWorkspaceLink(
+  event: MouseEvent<HTMLDivElement>,
+  navigate: ReturnType<typeof useNavigate>
+) {
+  if (
+    event.defaultPrevented ||
+    event.button !== 0 ||
+    event.metaKey ||
+    event.ctrlKey ||
+    event.shiftKey
+  )
+    return;
+  const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>("a[href]");
+  if (!anchor || anchor.target || anchor.hasAttribute("download")) return;
+  const target = new URL(anchor.href, window.location.origin);
+  if (target.origin !== window.location.origin || !target.pathname.startsWith("/app/")) return;
+  event.preventDefault();
+  void navigate({ to: `${target.pathname}${target.search}${target.hash}` });
+}
+
+function DelayedGlobalLoader() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setVisible(true), 180);
+    return () => window.clearTimeout(timeout);
+  }, []);
+  return visible ? <GlobalLoader /> : null;
 }
 
 function buildGlobalSearchItems(administrator: boolean): GlobalSearchItem[] {

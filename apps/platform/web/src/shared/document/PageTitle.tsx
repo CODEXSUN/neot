@@ -7,14 +7,22 @@ export function setPlatformDocumentTitle(pageTitle: string) {
 }
 
 const pageTitles: Record<string, string> = {
-  "/": "Login",
+  "/": "Learn today. Own tomorrow.",
+  "/about": "About",
   "/admin": "Admin Desk",
   "/admin/login": "Staff Admin Login",
   "/app": "Application Desk",
+  "/contact": "Contact",
+  "/learning": "Learning",
   "/login": "App Login",
+  "/masters": "For Masters",
+  "/organisations": "For Organisations",
+  "/privacy": "Privacy Policy",
   "/sa": "Super Admin Desk",
   "/sa/login": "Super Admin Login",
   "/status": "Status",
+  "/students": "For Students",
+  "/terms": "Terms of Use",
   "/workspace": "Dashboard"
 };
 

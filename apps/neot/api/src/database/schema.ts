@@ -62,6 +62,7 @@ export type NEOTDatabase = {
   neot_learning_test_questions: LearningTestQuestionsTable;
   neot_learning_attempts: LearningAttemptsTable;
   neot_learning_progress: LearningProgressTable;
+  neot_learning_discussion_posts: LearningDiscussionPostsTable;
   neot_sync_conflicts: NEOTSyncConflictsTable;
   neot_sync_connections: NEOTSyncConnectionsTable;
   neot_sync_runs: NEOTSyncRunsTable;
@@ -199,6 +200,10 @@ export type NotificationJobsTable = {
 };
 
 export type LearningCoursesTable = {
+  author: string;
+  cover_image: string;
+  position: number;
+  theme: string;
   id: Generated<number>;
   uuid: string;
   code: string;
@@ -246,6 +251,7 @@ export type LearningSubjectsTable = {
 };
 
 export type LearningLessonsTable = {
+  author: string;
   id: Generated<number>;
   uuid: string;
   subject_uuid: string;
@@ -255,6 +261,17 @@ export type LearningLessonsTable = {
   status: string;
   created_at: TimestampColumn;
   updated_at: TimestampColumn;
+};
+
+export type LearningDiscussionPostsTable = {
+  author: string;
+  body: string;
+  created_at: TimestampColumn;
+  id: Generated<number>;
+  lesson_uuid: string;
+  parent_uuid: string | null;
+  updated_at: TimestampColumn;
+  uuid: string;
 };
 
 export type LearningQuestionsTable = {
