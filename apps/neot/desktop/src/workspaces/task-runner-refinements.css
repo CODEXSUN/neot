@@ -1,0 +1,355 @@
+.task-runner-page {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: 24px 0 0;
+}
+
+.task-runner-page-header {
+  max-width: none;
+  margin: 0;
+  padding: 0 32px 20px;
+}
+
+.task-runner-shell {
+  width: 100%;
+  max-width: none;
+  height: calc(100vh - 39px);
+  min-height: 0;
+  margin: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0;
+}
+
+.task-runner-list {
+  flex-basis: 280px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid #d9e1ef;
+  background: #f7f9fd;
+}
+
+.task-drawer-toggle {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  align-self: flex-end;
+  margin-bottom: 10px;
+  border: 1px solid #d9e1ef;
+  border-radius: 7px;
+  background: #fff;
+  color: #4057b6;
+  cursor: pointer;
+}
+
+.task-drawer-collapsed .task-runner-list {
+  flex-basis: 48px;
+  padding: 10px 8px;
+}
+
+.task-drawer-collapsed .task-drawer-toggle {
+  align-self: center;
+}
+
+.task-runner-list > div {
+  flex: 1;
+  min-height: 0;
+  align-content: start;
+  grid-auto-rows: min-content;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-color: #aebbe0 transparent;
+  scrollbar-width: thin;
+}
+
+.task-runner-list > div > button {
+  min-height: 0;
+}
+
+.task-runner-list > div::-webkit-scrollbar {
+  width: 8px;
+}
+
+.task-runner-list > div::-webkit-scrollbar-thumb {
+  border: 2px solid #f9fbff;
+  border-radius: 999px;
+  background: #aebbe0;
+}
+
+.task-runner-detail {
+  overflow-y: auto;
+  background: #f7f9fd;
+  scrollbar-color: #8c99ad transparent;
+  scrollbar-width: thin;
+}
+
+.task-runner-detail::-webkit-scrollbar {
+  width: 7px;
+}
+
+.task-runner-detail::-webkit-scrollbar-thumb {
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #8c99ad;
+}
+
+.task-runner-content {
+  width: min(720px, calc(100% - 64px));
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding-top: 52px;
+  padding-bottom: 72px;
+}
+
+.task-runner-result header,
+.task-runner-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.task-runner-result button,
+.task-runner-error button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.task-runner-result .task-runner-choice {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid currentColor;
+}
+
+.task-runner-choice span {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.task-runner-choice button {
+  flex: 1;
+  min-width: 68px;
+  padding: 7px 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+}
+
+.task-runner-text-response {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
+.task-runner-text-response input {
+  min-width: 0;
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.task-runner-text-response button {
+  min-width: 72px;
+}
+
+.task-create-trigger {
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #cad5e8;
+  border-radius: 7px;
+  background: #fff;
+  color: #314899;
+  font: inherit;
+  font-weight: 700;
+}
+
+.task-create-modal {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(15 23 42 / 42%);
+}
+
+.task-create-modal form {
+  display: grid;
+  width: min(520px, 100%);
+  gap: 12px;
+  padding: 22px;
+  border: 1px solid #d9e1ef;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 20px 45px rgb(15 23 42 / 20%);
+}
+
+.task-create-modal header,
+.task-create-modal footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.task-create-modal header strong {
+  font-size: 18px;
+}
+
+.task-create-modal header p,
+.task-create-modal label,
+.task-create-error {
+  margin: 4px 0 0;
+  color: #63728e;
+  font-size: 14px;
+}
+
+.task-create-modal label {
+  margin: 0;
+  color: #25334d;
+  font-weight: 700;
+}
+
+.task-create-modal textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 10px 12px;
+  border: 1px solid #cad5e8;
+  border-radius: 7px;
+  color: #1a2740;
+  font: inherit;
+  line-height: 1.45;
+}
+
+.task-create-modal input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #cad5e8;
+  border-radius: 7px;
+  color: #1a2740;
+  font: inherit;
+}
+
+.task-create-modal label small {
+  color: #71809b;
+  font-weight: 400;
+}
+
+.task-runner-execution {
+  white-space: pre-wrap;
+}
+
+.task-create-modal header button,
+.task-create-modal footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid #cad5e8;
+  border-radius: 7px;
+  background: #fff;
+  color: #314899;
+  cursor: pointer;
+  font: inherit;
+}
+
+.task-create-modal header button {
+  width: 36px;
+  padding: 0;
+}
+
+.task-create-modal footer {
+  align-items: center;
+  margin-top: 4px;
+}
+
+.task-create-modal footer .primary {
+  border-color: #354cad;
+  background: #354cad;
+  color: #fff;
+}
+
+.task-create-modal footer .primary:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.task-create-error {
+  color: #ab2632;
+}
+
+:root[data-theme="dark"] .task-runner-list > div::-webkit-scrollbar-thumb {
+  border-color: #151f30;
+  background: #566789;
+}
+
+:root[data-theme="dark"] .task-runner-list,
+:root[data-theme="dark"] .task-runner-detail {
+  border-color: #2c3a52;
+  background: #111827;
+}
+
+:root[data-theme="dark"] .task-drawer-toggle {
+  border-color: #35435c;
+  background: #182438;
+}
+
+:root[data-theme="dark"] .task-create-trigger,
+:root[data-theme="dark"] .task-create-modal form,
+:root[data-theme="dark"] .task-create-modal header button,
+:root[data-theme="dark"] .task-create-modal footer button {
+  border-color: #35435c;
+  background: #182438;
+  color: #d0d9ff;
+}
+
+:root[data-theme="dark"] .task-create-modal textarea,
+:root[data-theme="dark"] .task-create-modal input {
+  border-color: #35435c;
+  background: #111827;
+  color: #f0f4ff;
+}
+
+:root[data-theme="dark"] .task-create-modal label {
+  color: #f0f4ff;
+}
+
+:root[data-theme="dark"] .task-create-modal footer .primary {
+  border-color: #576bc6;
+  background: #4057b6;
+  color: #fff;
+}
+
+:root[data-theme="dark"] .task-runner-text-response input {
+  background: #111827;
+}
+
+:root[data-theme="dark"] .task-runner-detail::-webkit-scrollbar-thumb {
+  border-color: #111827;
+  background: #566789;
+}

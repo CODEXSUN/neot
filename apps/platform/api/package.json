@@ -1,0 +1,22 @@
+{
+  "name": "@neot/platform-api",
+  "version": "1.0.87",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@neot/neot-api": "1.0.87",
+    "@neot/framework": "1.0.87",
+    "@codexsun/blog": "*",
+    "@codexsun/file-manager": "*",
+    "fastify": "^5.12.1",
+    "kysely": "^0.29.5",
+    "mysql2": "^3.23.3",
+    "socket.io": "^4.8.3",
+    "zod": "^4.4.3"
+  }
+}

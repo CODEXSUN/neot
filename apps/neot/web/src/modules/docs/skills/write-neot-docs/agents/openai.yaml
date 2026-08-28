@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write NEOT Docs"
+  short_description: "Apply NEOT documentation naming and structure rules"
+  default_prompt: "Use $write-neot-docs to create or update a NEOT documentation page."

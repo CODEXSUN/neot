@@ -1,0 +1,288 @@
+@import "@neot/ui/styles.css";
+
+@source ".";
+@source "../../../neot/web/src";
+@source "../../../../../core/web/src";
+
+.simple-page {
+  align-items: center;
+  display: grid;
+  justify-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.simple-page > section,
+.simple-page > div {
+  width: min(520px, 100%);
+}
+
+.status-list {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 150px minmax(0, 1fr);
+}
+
+.status-list span {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-submit {
+  margin-top: 4px;
+  width: 100%;
+}
+
+.platform-login-page {
+  align-items: center;
+  background:
+    radial-gradient(
+      circle at 16% 18%,
+      color-mix(in oklab, var(--primary) 6%, transparent),
+      transparent 30%
+    ),
+    color-mix(in oklab, #ffffff 97%, var(--primary));
+  display: grid;
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.platform-login-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(380px, 0.7fr);
+  margin: 0 auto;
+  max-width: 1040px;
+  min-height: 560px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.platform-login-story {
+  background:
+    radial-gradient(
+      circle at 16% 14%,
+      color-mix(in oklab, var(--primary) 12%, transparent),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in oklab, #ffffff 94%, var(--primary)),
+      color-mix(in oklab, #ffffff 98%, var(--primary))
+    );
+  border: 1px solid color-mix(in oklab, var(--primary) 18%, #ffffff);
+  border-radius: 18px 0 0 18px;
+  color: #173f39;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 44px;
+}
+
+.platform-login-brand,
+.platform-login-panel-brand {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.platform-login-brand .auth-surface-mark {
+  filter: drop-shadow(0 8px 18px rgb(15 118 110 / 12%));
+}
+
+.platform-login-brand > span:last-child {
+  display: grid;
+  gap: 4px;
+}
+
+.platform-login-brand strong {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.platform-login-brand small {
+  color: #52746f;
+  font-size: 12px;
+}
+
+.platform-login-slider {
+  max-width: 390px;
+}
+
+.platform-login-eyebrow {
+  align-items: center;
+  color: #18786d;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 650;
+  gap: 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.platform-login-slider p {
+  animation: platform-login-slide 360ms ease-out;
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.16;
+  margin: 18px 0 22px;
+  min-height: 3.5em;
+}
+
+.platform-login-dots {
+  display: flex;
+  gap: 7px;
+}
+
+.platform-login-dots span {
+  background: color-mix(in oklab, var(--primary) 22%, transparent);
+  border-radius: 999px;
+  height: 3px;
+  transition:
+    width 180ms ease,
+    background-color 180ms ease;
+  width: 16px;
+}
+
+.platform-login-dots span.is-active {
+  background: var(--primary);
+  width: 34px;
+}
+
+.platform-login-footnote {
+  align-items: center;
+  color: #52746f;
+  display: flex;
+  font-size: 12px;
+  gap: 7px;
+  margin: 0;
+}
+
+.platform-login-panel {
+  align-items: center;
+  background: color-mix(in oklab, var(--card) 96%, var(--background));
+  border: 1px solid color-mix(in oklab, var(--border) 78%, transparent);
+  border-left: 0;
+  border-radius: 0 18px 18px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 44px 48px;
+}
+
+.platform-login-panel-brand {
+  display: none;
+  margin-bottom: 22px;
+}
+
+.platform-login-panel-brand .auth-logo-image {
+  height: 34px;
+  width: 34px;
+}
+
+.platform-login-panel-brand span {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.platform-login-card-frame {
+  border: 0;
+  box-shadow: none;
+  max-width: 410px;
+  padding: 0;
+}
+
+.platform-login-card {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+@keyframes platform-login-slide {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-field {
+  display: grid;
+  gap: 6px;
+}
+
+.form-error {
+  color: var(--destructive);
+  font-size: 13px;
+  margin: 0;
+}
+
+.platform-auth-logo-dark {
+  display: none;
+}
+
+.dark .platform-auth-logo-light {
+  display: none;
+}
+
+.dark .platform-auth-logo-dark {
+  display: block;
+}
+
+@media (max-width: 760px) {
+  .status-list {
+    grid-template-columns: 1fr;
+  }
+
+  .platform-login-page {
+    padding: 18px;
+  }
+
+  .platform-login-shell {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .platform-login-story {
+    border-radius: 16px 16px 0 0;
+    min-height: 220px;
+    padding: 26px;
+  }
+
+  .platform-login-brand,
+  .platform-login-footnote {
+    display: none;
+  }
+
+  .platform-login-slider p {
+    font-size: 24px;
+    margin-bottom: 16px;
+    min-height: 2.5em;
+  }
+
+  .platform-login-panel {
+    border-left: 1px solid color-mix(in oklab, var(--border) 78%, transparent);
+    border-radius: 0 0 16px 16px;
+    padding: 30px 24px 34px;
+  }
+
+  .platform-login-panel-brand {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-login-slider p {
+    animation: none;
+  }
+}

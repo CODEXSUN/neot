@@ -1,0 +1,19 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@neot/ui": ["../../../packages/ui/src/index.ts"],
+      "@neot/ui/styles.css": ["../../../packages/ui/src/styles.css"],
+      "@neot/ui/components/*": ["../../../packages/ui/src/components/*"],
+      "@neot/ui/layouts/*": ["../../../packages/ui/src/layouts/*"],
+      "@neot/ui/blocks/*": ["../../../packages/ui/src/blocks/*"],
+      "@neot/ui/workspace": ["../../../packages/ui/src/workspace/index.ts"],
+      "@neot/ui/workspace/*": ["../../../packages/ui/src/workspace/*"],
+      "@neot/ui/presets/*": ["../../../packages/ui/src/workspace/presets/*"],
+      "@neot/ui/lib/*": ["../../../packages/ui/src/lib/*"]
+    },
+    "noEmit": true,
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src", "vite.config.ts"]
+}

@@ -1,0 +1,39 @@
+# syntax=docker/dockerfile:1.7
+ARG NODE_RUNTIME_VERSION=26.5.0
+FROM node:${NODE_RUNTIME_VERSION}-bookworm-slim AS build
+
+ARG NPM_RUNTIME_VERSION=12.0.2
+WORKDIR /workspace/neot
+RUN npm install --global npm@${NPM_RUNTIME_VERSION}
+
+# NEOT is a self-contained monorepo. Framework and UI are internal workspaces.
+COPY . .
+
+RUN --mount=type=cache,id=neot-app-npm,target=/root/.npm \
+  npm ci && npm run build
+
+FROM build AS verify
+RUN npm run check
+
+FROM node:${NODE_RUNTIME_VERSION}-bookworm-slim AS api-runtime
+ARG NPM_RUNTIME_VERSION=12.0.2
+WORKDIR /workspace/neot
+RUN npm install --global npm@${NPM_RUNTIME_VERSION} && \
+  apt-get update && \
+  apt-get install -y --no-install-recommends ca-certificates git gosu openssh-client && \
+  rm -rf /var/lib/apt/lists/*
+COPY --chown=node:node --from=build /workspace/neot /workspace/neot
+COPY --chmod=755 .container/scripts/api-entrypoint.sh /usr/local/bin/neot-api-entrypoint
+RUN mkdir -p /var/lib/neot/codex /var/lib/neot/worktrees /srv/neot/repositories && \
+  chown -R node:node /workspace/neot /var/lib/neot /srv/neot/repositories
+ENV NEOT_CODEX_HOME=/var/lib/neot/codex \
+  NEOT_AGENT_ALLOWED_ROOTS=/srv/neot/repositories \
+  NEOT_AGENT_WORKTREE_ROOT=/var/lib/neot/worktrees
+ENTRYPOINT ["neot-api-entrypoint"]
+EXPOSE 9250
+CMD ["node", "dist/platform/api/server.js"]
+
+FROM nginx:1.28-alpine AS web-runtime
+COPY .container/scripts/nginx-spa.conf /etc/nginx/templates/default.conf.template
+COPY --from=build /workspace/neot/dist/platform/web /usr/share/nginx/html
+EXPOSE 80

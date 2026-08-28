@@ -1,0 +1,121 @@
+name: ${NEOT_COMPOSE_PROJECT:-neot}
+
+services:
+  verify:
+    profiles: [tools]
+    build:
+      context: ..
+      dockerfile: .container/scripts/Dockerfile.stack
+      target: verify
+      args:
+        NODE_RUNTIME_VERSION: ${NODE_RUNTIME_VERSION:-26.5.0}
+        NPM_RUNTIME_VERSION: ${NPM_RUNTIME_VERSION:-12.0.2}
+    image: ${NEOT_IMAGE_REGISTRY:-neot}/verify:${NEOT_IMAGE_TAG:-local}
+
+  mariadb:
+    image: ${MARIADB_IMAGE:-mariadb:11.8}
+    container_name: ${NEOT_MARIADB_CONTAINER_NAME:-neot-mariadb}
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:?DB_NAME is required}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?MARIADB_ROOT_PASSWORD is required}
+      MARIADB_USER: ${DB_USER:?DB_USER is required}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    networks: [neot]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+
+  api:
+    build:
+      context: ..
+      dockerfile: .container/scripts/Dockerfile.stack
+      target: api-runtime
+      args:
+        NODE_RUNTIME_VERSION: ${NODE_RUNTIME_VERSION:-26.5.0}
+        NPM_RUNTIME_VERSION: ${NPM_RUNTIME_VERSION:-12.0.2}
+    image: ${NEOT_IMAGE_REGISTRY:-neot}/api:${NEOT_IMAGE_TAG:-local}
+    container_name: ${NEOT_API_CONTAINER_NAME:-neot-api}
+    init: true
+    restart: unless-stopped
+    env_file:
+      - ${NEOT_RUNTIME_ENV_FILE:-../.env}
+    environment:
+      DEV_AUTO_LOGIN: "0"
+      NODE_ENV: production
+      PLATFORM_API_PORT: ${NEOT_API_INTERNAL_PORT:-9250}
+      NEOT_ENV_FILE_PATH: /workspace/neot/.env
+      NEOT_CODEX_HOME: /var/lib/neot/codex
+      NEOT_AGENT_ALLOWED_ROOTS: /srv/neot/repositories
+      NEOT_AGENT_WORKTREE_ROOT: /var/lib/neot/worktrees
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    ports:
+      - "${NEOT_BIND_ADDRESS:-127.0.0.1}:${NEOT_API_HOST_PORT:-9250}:${NEOT_API_INTERNAL_PORT:-9250}"
+    volumes:
+      - ${NEOT_RUNTIME_ENV_FILE:-../.env}:/workspace/neot/.env:rw
+      - codex-state:/var/lib/neot/codex
+      - agent-worktrees:/var/lib/neot/worktrees
+      - agent-repositories:/srv/neot/repositories
+    networks: [neot]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:'+process.env.PLATFORM_API_PORT+'/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 18
+
+  web:
+    build:
+      context: ..
+      dockerfile: .container/scripts/Dockerfile.stack
+      target: web-runtime
+      args:
+        NODE_RUNTIME_VERSION: ${NODE_RUNTIME_VERSION:-26.5.0}
+        NPM_RUNTIME_VERSION: ${NPM_RUNTIME_VERSION:-12.0.2}
+    image: ${NEOT_IMAGE_REGISTRY:-neot}/web:${NEOT_IMAGE_TAG:-local}
+    container_name: ${NEOT_WEB_CONTAINER_NAME:-neot-web}
+    restart: unless-stopped
+    environment:
+      NGINX_ENVSUBST_FILTER: NEOT_API
+      NEOT_API_CONTAINER_NAME: ${NEOT_API_CONTAINER_NAME:-neot-api}
+      NEOT_API_INTERNAL_PORT: ${NEOT_API_INTERNAL_PORT:-9250}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${NEOT_BIND_ADDRESS:-127.0.0.1}:${NEOT_WEB_HOST_PORT:-9260}:80"
+    networks: [neot]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 12
+
+volumes:
+  mariadb-data:
+    name: ${NEOT_MARIADB_DATA_VOLUME:-neot-mariadb-data}
+  codex-state:
+    name: ${NEOT_CODEX_STATE_VOLUME:-neot-codex-state}
+  agent-worktrees:
+    name: ${NEOT_AGENT_WORKTREE_VOLUME:-neot-agent-worktrees}
+  agent-repositories:
+    name: ${NEOT_AGENT_REPOSITORY_VOLUME:-neot-agent-repositories}
+
+networks:
+  neot:
+    name: ${NEOT_NETWORK:-neot-network}
+    external: ${NEOT_NETWORK_EXTERNAL:-false}

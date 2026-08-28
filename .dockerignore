@@ -1,0 +1,10 @@
+.git
+.env
+.container/deploy.env
+.container/backups
+NEOT
+coverage
+dist
+node_modules
+storage
+*.log

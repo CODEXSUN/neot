@@ -1,0 +1,22 @@
+# NEOT-owned local services. Start only through the local-ai scripts.
+name: neot-local-ai
+
+services:
+  ollama:
+    image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
+    container_name: neot-local-ollama
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${LOCAL_AI_OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - "${LOCAL_AI_OLLAMA_DATA_DIR}:/root/.ollama"
+
+  qdrant:
+    image: ${QDRANT_IMAGE:-qdrant/qdrant:latest}
+    container_name: neot-local-qdrant
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${LOCAL_AI_QDRANT_HTTP_PORT:-6333}:6333"
+      - "127.0.0.1:${LOCAL_AI_QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - "${LOCAL_AI_QDRANT_DATA_DIR}:/qdrant/storage"

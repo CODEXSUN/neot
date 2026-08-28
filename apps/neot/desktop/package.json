@@ -1,0 +1,44 @@
+{
+  "name": "@neot/desktop",
+  "version": "1.0.87",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && vite build",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "dev": "node ../../../tools/start-desktop-vite.mjs",
+    "lint": "eslint src --ext .ts,.tsx",
+    "tauri": "tauri",
+    "tauri:build": "node ../../../tools/prepare-codex-sidecar.mjs && tauri build",
+    "tauri:dev": "node ../../../tools/prepare-codex-sidecar.mjs && tauri dev",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@openai/codex": "0.148.0",
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-updater": "^2.10.1",
+    "@xterm/xterm": "^6.0.0",
+    "framer-motion": "^13.1.1",
+    "lucide-react": "^1.33.0",
+    "monaco-editor": "^0.56.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "eslint": "^10.8.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "versionCode": 2,
+  "versionName": "1.0.1",
+  "apkUrl": "/storage/mobile/release/neot-mobile.apk",
+  "sha256": "a252fbb9c72addeb42bbb029dbe1a6954beca7cfc2de349c5b7666730377d7bc",
+  "sizeBytes": 48691538,
+  "publishedAt": "2026-08-28T04:11:06Z",
+  "required": false,
+  "releaseNotes": [
+    "Browse subjects before opening their lessons.",
+    "See lesson completion statistics on every subject.",
+    "Receive future NEOT updates from the web portal."
+  ]
+}

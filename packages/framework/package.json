@@ -1,0 +1,97 @@
+{
+  "name": "@neot/framework",
+  "version": "1.0.87",
+  "private": true,
+  "description": "NEOT-owned framework runtime and stable application contracts",
+  "type": "module",
+  "files": [
+    "src",
+    "api.js",
+    "config.js",
+    "db.js",
+    "env.js",
+    "errors.js",
+    "events.js",
+    "health.js",
+    "http.js",
+    "index.js",
+    "logger.js",
+    "modules.js",
+    "queue.js",
+    "storage.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./index.js"
+    },
+    "./api": {
+      "types": "./src/api/index.ts",
+      "default": "./api.js"
+    },
+    "./config": {
+      "types": "./src/config/index.ts",
+      "default": "./config.js"
+    },
+    "./db": {
+      "types": "./src/db/index.ts",
+      "default": "./db.js"
+    },
+    "./env": {
+      "types": "./src/env/index.ts",
+      "default": "./env.js"
+    },
+    "./errors": {
+      "types": "./src/errors/index.ts",
+      "default": "./errors.js"
+    },
+    "./events": {
+      "types": "./src/events/index.ts",
+      "default": "./events.js"
+    },
+    "./health": {
+      "types": "./src/health/index.ts",
+      "default": "./health.js"
+    },
+    "./http": {
+      "types": "./src/http/index.ts",
+      "default": "./http.js"
+    },
+    "./logger": {
+      "types": "./src/logger/index.ts",
+      "default": "./logger.js"
+    },
+    "./modules": {
+      "types": "./src/modules/index.ts",
+      "default": "./modules.js"
+    },
+    "./queue": {
+      "types": "./src/queue/index.ts",
+      "default": "./queue.js"
+    },
+    "./storage": {
+      "types": "./src/storage/index.ts",
+      "default": "./storage.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --emitDeclarationOnly false",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "test:exports": "npm run build && node tools/check-exports.mjs",
+    "package:check": "npm run build && node tools/check-package.mjs",
+    "dependencies:check": "node tools/check-dependencies.mjs"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.12.1",
+    "mariadb": "^3.5.3",
+    "mysql2": "^3.23.3",
+    "zod": "^4.4.3"
+  }
+}

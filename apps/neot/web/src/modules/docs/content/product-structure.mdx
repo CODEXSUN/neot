@@ -1,0 +1,66 @@
+import productStructureDiagram from "./product-structure.svg";
+
+# Product structure
+
+Company builds independent products through one engineering platform. Each product has a clear purpose, owner, data boundary, and release cycle.
+
+<img
+  src={productStructureDiagram}
+  alt="Decision flow that places new behavior in one product, the shared platform, or a newly defined product before controlled delivery."
+/>
+
+Start at the top of the diagram. Select one ownership path. Every path joins the same controlled delivery cycle.
+
+## Why products stay separate
+
+Product separation limits risk and keeps ownership clear. A change in one product must not break another product.
+
+Each product owns:
+
+- its business rules and user workflows;
+- its product data and files;
+- its application configuration;
+- its tests and release evidence;
+- its deployment and maintenance decisions;
+- its client support records.
+
+## Product definition status
+
+| Product       | Definition status                                                              |
+| ------------- | ------------------------------------------------------------------------------ |
+| **Project A** | Purpose, users, scope, and capabilities need owner approval.                   |
+| **Project B** | Purpose, users, scope, and capabilities need owner approval.                   |
+| **Project C** | Purpose, users, scope, and capabilities need owner approval.                   |
+| **Project N** | The product stays undefined until the owner approves its first complete scope. |
+
+## What the platform shares
+
+The engineering platform supplies controls that every product can use:
+
+- identity and permission rules;
+- source control and code review;
+- AI agent access and approval rules;
+- testing and release checks;
+- development and deployment environments;
+- logs, health checks, and performance signals.
+
+The platform provides common capabilities. It must not contain one product's private business rules.
+
+## Product boundary rule
+
+Keep a feature inside a product when only that product needs the feature. Share a capability only when several products need the same general behavior.
+
+For example, a rule used by one approved product stays in that product. User identity can belong to the shared platform when several products need it.
+
+## Define Project N before development
+
+Project N stays undefined until the team records these decisions:
+
+1. Name the industry and business problem.
+2. Identify the client roles and main users.
+3. Define the first complete workflow.
+4. Define the product data and access rules.
+5. Select the required shared capabilities.
+6. Define tests, deployment, support, and maintenance ownership.
+
+After approval, Project N becomes an independent product with its own delivery cycle.

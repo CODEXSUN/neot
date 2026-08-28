@@ -1,0 +1,4 @@
+interface:
+  display_name: "NEOT Production Update"
+  short_description: "Safely verify and deploy NEOT on its Ubuntu VPS."
+  default_prompt: "Use $neot-production-update to verify, deploy, migrate, clean, and audit a NEOT production release."

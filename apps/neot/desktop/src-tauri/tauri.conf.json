@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "NEOT",
+  "version": "1.0.87",
+  "identifier": "com.neot.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1620",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../../../../dist/neot/desktop"
+  },
+  "app": {
+    "security": {
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; font-src 'self' data:; img-src 'self' asset: data: blob:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:"
+    },
+    "windows": [
+      {
+        "label": "main",
+        "title": "NEOT",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 620,
+        "resizable": true
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "category": "DeveloperTool",
+    "createUpdaterArtifacts": true,
+    "homepage": "https://neot.in",
+    "externalBin": [
+      "binaries/codex",
+      "binaries/codex-code-mode-host",
+      "binaries/codex-command-runner",
+      "binaries/codex-windows-sandbox-setup",
+      "binaries/opencode",
+      "binaries/rg"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "publisher": "CODEXSUN",
+    "shortDescription": "NEOT engineering IDE",
+    "targets": [
+      "msi"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "wix": {
+        "language": "en-US",
+        "upgradeCode": "da54f106-f843-506e-8738-3bb49bda90d2"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/CODEXSUN/neot/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc1MDQzREREREQ4NUI5MjkKUldRcHVZWGQzVDBFZFhrdE9HZHcwOU11S1p1R1MyVVJQdkpibStvNlRJL0NpRFA3UTBhaTN1dkkK",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}

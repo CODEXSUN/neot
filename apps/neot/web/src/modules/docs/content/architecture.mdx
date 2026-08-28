@@ -1,0 +1,86 @@
+import architectureDiagram from "./architecture.svg";
+
+# Architecture
+
+One organization &rarr; one engineering platform &rarr; one source-of-truth repository &rarr; many independent products &rarr; shared platform capabilities &rarr; standardized development and deployment.
+
+<img
+  src={architectureDiagram}
+  alt="Logicx Software India architecture from the engineering platform and repository through products, delivery, deployment, maintenance, client roles, and feedback."
+/>
+
+## Operating model
+
+**Logicx Software India P Ltd** owns the organization, engineering standards, and delivery controls. The company uses one NEOT Engineering Platform to coordinate product work.
+
+The Engineering repository is the source of truth. It records approved source code, configuration, documentation, release history, and engineering evidence.
+
+## Independent products
+
+Each product has its own boundary and release lifecycle. Its purpose and scope need owner approval before documentation defines them.
+
+| Product       | Definition status                                                              |
+| ------------- | ------------------------------------------------------------------------------ |
+| **Project A** | Purpose, users, scope, and capabilities need owner approval.                   |
+| **Project B** | Purpose, users, scope, and capabilities need owner approval.                   |
+| **Project C** | Purpose, users, scope, and capabilities need owner approval.                   |
+| **Project N** | The product stays undefined until the owner approves its first complete scope. |
+
+Product changes stay inside the product boundary. Shared capabilities do not merge the products into one application.
+
+## Shared platform capabilities
+
+The products use one common set of engineering capabilities:
+
+- **Identity** controls sign-in, users, roles, and permissions. The server must check permission before it reads or changes protected data.
+- **AI agents** help teams plan, develop, test, review, and maintain products. A person reviews the result before merge or deployment.
+- **Source control** stores code and configuration history in Git. Developers use branches, commits, and reviews to manage each change.
+- **Testing** checks behavior, integrations, security, and release readiness. A failed required test stops the release.
+- **Infrastructure** supplies development, preview, staging, and production environments. Each environment has a separate purpose and controlled configuration.
+- **Observability** records health, errors, logs, and performance. These signals help the team find and fix live problems.
+
+Shared capabilities provide common tools and rules. Each product still owns its source code, data, releases, and product decisions.
+
+## Product delivery cycle
+
+1. **Discover:** Collect the client need, business goal, current problem, risks, and limits. Write a clear requirement that the team can review.
+2. **Plan and design:** Define the scope, architecture, data flow, user experience, tasks, and acceptance criteria. Identify dependencies before development starts.
+3. **Develop:** Create a branch and build the approved change. Keep the code inside the correct product or platform boundary.
+4. **Test and review:** Run automated checks and test the main user flow. Review the code, security, errors, and acceptance criteria.
+5. **Approve and release:** Get the required approval. Merge the change and create a named, versioned release with release notes.
+
+Each stage produces evidence for the next stage. A developer must not skip a failed check or required approval.
+
+## Deployment
+
+The release moves through four controlled steps:
+
+1. **Preview** shows the change for early review. It can use temporary application resources.
+2. **Staging** tests the release in an environment that is similar to production.
+3. **Production** makes the approved release available to clients and end users.
+4. **Verification** checks application health, important pages, APIs, jobs, and database migrations after deployment.
+
+Each environment uses its own configuration and protected credentials. Credentials must not enter source code, browser responses, or logs.
+
+Production deployment needs approval, a backup when data can change, a health check, and a recovery plan. The team records the deployed version.
+
+## Maintenance and continuous improvement
+
+Maintenance keeps the released product safe and useful:
+
+- **Observe** application health, errors, jobs, storage, and response times.
+- **Support** users and record each confirmed problem with enough detail to reproduce it.
+- **Fix** defects with the same plan, test, review, and release controls.
+- **Secure** the product with dependency updates, access reviews, backups, and credential rotation.
+- **Improve** slow flows, repeated manual work, confusing screens, and common support problems.
+
+Monitoring, support, and client feedback create new requirements. The team sends these requirements back to discovery.
+
+## Client roles and feedback
+
+- The **business owner** sets priorities, defines expected value, and approves business outcomes.
+- The **administrator** manages client configuration, users, roles, and operating settings.
+- The **team member** completes daily business work and reports workflow problems.
+- The **end user** uses the delivered service and reports errors or confusing behavior.
+
+The team records feedback with the affected product, user role, steps, expected result, and actual result. Confirmed feedback returns to discovery and starts a new delivery cycle.

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 940" role="img" aria-labelledby="title description">
+  <title id="title">Product structure decision flow</title>
+  <desc id="description">A new behavior goes to one product, the shared platform, or a newly defined product. Every approved path uses the same delivery cycle.</desc>
+  <defs>
+    <marker id="arrow" markerHeight="8" markerWidth="8" orient="auto" refX="7" refY="4">
+      <path d="M0 0 8 4 0 8Z" fill="#64748b"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="150%">
+      <feDropShadow dx="0" dy="3" flood-color="#0f172a" flood-opacity="0.08" stdDeviation="3"/>
+    </filter>
+    <style>
+      .heading { fill: #0f172a; font: 700 22px ui-sans-serif, system-ui, sans-serif; }
+      .label { fill: #64748b; font: 700 15px ui-sans-serif, system-ui, sans-serif; letter-spacing: .06em; }
+      .detail { fill: #475569; font: 500 15px ui-sans-serif, system-ui, sans-serif; }
+      .line { fill: none; stroke: #64748b; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+      .card { fill: #ffffff; filter: url(#shadow); stroke: #cbd5e1; stroke-width: 2; }
+    </style>
+  </defs>
+  <rect width="1200" height="940" rx="32" fill="#f8fafc"/>
+
+  <text class="label" text-anchor="middle" x="600" y="38">NEW REQUIREMENT OR BEHAVIOR</text>
+  <rect class="card" x="420" y="54" width="360" height="72" rx="18"/>
+  <text class="heading" text-anchor="middle" x="600" y="98">Understand the business need</text>
+  <path class="line" d="M600 126V154" marker-end="url(#arrow)"/>
+
+  <path d="M600 160 790 230 600 300 410 230Z" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+  <text class="label" fill="#4f46e5" text-anchor="middle" x="600" y="216">BOUNDARY DECISION</text>
+  <text class="heading" text-anchor="middle" x="600" y="248">Who needs this behavior?</text>
+
+  <path class="line" d="M470 252H190V326" marker-end="url(#arrow)"/>
+  <text class="label" text-anchor="middle" x="300" y="282">ONE PRODUCT</text>
+  <path class="line" d="M600 300V310"/>
+  <text class="label" text-anchor="middle" x="600" y="334">SEVERAL PRODUCTS</text>
+  <path class="line" d="M600 344V358" marker-end="url(#arrow)"/>
+  <path class="line" d="M730 252H1010V326" marker-end="url(#arrow)"/>
+  <text class="label" text-anchor="middle" x="900" y="282">SCOPE IS NOT DEFINED</text>
+
+  <rect class="card" x="55" y="370" width="270" height="112" rx="18"/>
+  <text class="heading" text-anchor="middle" x="190" y="408">Product-owned change</text>
+  <text class="detail" text-anchor="middle" x="190" y="438">Keep business rules, data,</text>
+  <text class="detail" text-anchor="middle" x="190" y="462">tests, and release ownership here.</text>
+
+  <rect x="465" y="370" width="270" height="112" rx="18" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="2"/>
+  <text class="heading" text-anchor="middle" x="600" y="408">Shared platform capability</text>
+  <text class="detail" text-anchor="middle" x="600" y="438">Share general identity, tools,</text>
+  <text class="detail" text-anchor="middle" x="600" y="462">testing, infrastructure, and signals.</text>
+
+  <rect x="875" y="370" width="270" height="112" rx="18" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text class="heading" text-anchor="middle" x="1010" y="408">Define Project N</text>
+  <text class="detail" text-anchor="middle" x="1010" y="438">Define the industry, users, data,</text>
+  <text class="detail" text-anchor="middle" x="1010" y="462">workflow, access, and ownership.</text>
+
+  <path class="line" d="M190 482V520" marker-end="url(#arrow)"/>
+  <path class="line" d="M600 482V520" marker-end="url(#arrow)"/>
+  <path class="line" d="M1010 482V520" marker-end="url(#arrow)"/>
+
+  <rect class="card" x="55" y="532" width="270" height="116" rx="18"/>
+  <text class="label" text-anchor="middle" x="190" y="564">PRODUCT OWNS</text>
+  <text class="detail" text-anchor="middle" x="190" y="592">Project A, Project B,</text>
+  <text class="detail" text-anchor="middle" x="190" y="616">or Project C</text>
+
+  <rect class="card" x="465" y="532" width="270" height="116" rx="18"/>
+  <text class="label" text-anchor="middle" x="600" y="564">PLATFORM OWNS</text>
+  <text class="detail" text-anchor="middle" x="600" y="592">A general capability with no</text>
+  <text class="detail" text-anchor="middle" x="600" y="616">product-specific business rule</text>
+
+  <rect class="card" x="875" y="532" width="270" height="116" rx="18"/>
+  <text class="label" text-anchor="middle" x="1010" y="564">NEW PRODUCT OWNS</text>
+  <text class="detail" text-anchor="middle" x="1010" y="592">The approved first workflow</text>
+  <text class="detail" text-anchor="middle" x="1010" y="616">and its complete lifecycle</text>
+
+  <path class="line" d="M190 648V686H1010V648M600 648V686"/>
+  <path class="line" d="M600 686V718" marker-end="url(#arrow)"/>
+  <text class="label" text-anchor="middle" x="600" y="752">COMMON CONTROLLED DELIVERY</text>
+  <rect x="90" y="774" width="1020" height="92" rx="20" fill="#0f172a"/>
+  <text x="600" y="814" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="700" text-anchor="middle">Discover &#8594; Plan &#8594; Develop &#8594; Test &#8594; Approve &#8594; Deploy &#8594; Maintain</text>
+  <text x="600" y="842" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="600" text-anchor="middle">Every path needs evidence, review, and clear ownership.</text>
+</svg>

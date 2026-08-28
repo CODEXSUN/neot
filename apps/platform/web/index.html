@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEOT | Learn today. Own tomorrow.</title>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      .neot-boot {
+        align-items: center;
+        background: #fff;
+        color: #365314;
+        display: flex;
+        flex-direction: column;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        justify-content: center;
+        min-height: 100svh;
+      }
+
+      .neot-boot img {
+        height: 74px;
+        width: 74px;
+      }
+
+      .neot-boot strong {
+        font-size: 22px;
+        letter-spacing: 0.08em;
+        margin-top: 20px;
+      }
+
+      .neot-boot span {
+        color: #66705d;
+        font-size: 13px;
+        margin-top: 6px;
+      }
+
+      .neot-boot-progress {
+        background: #e2e6dc;
+        border-radius: 999px;
+        height: 3px;
+        margin-top: 27px;
+        overflow: hidden;
+        width: 92px;
+      }
+
+      .neot-boot-progress::after {
+        animation: neot-boot-progress 1.1s ease-in-out infinite;
+        background: #365314;
+        border-radius: inherit;
+        content: "";
+        display: block;
+        height: 100%;
+        width: 42%;
+      }
+
+      @keyframes neot-boot-progress {
+        from {
+          transform: translateX(-110%);
+        }
+        to {
+          transform: translateX(250%);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="neot-boot" role="status" aria-label="Starting NEOT">
+        <img src="/logo/logo.svg" alt="" aria-hidden="true" />
+        <strong>NEOT</strong>
+        <span>Learn today. Own tomorrow.</span>
+        <div class="neot-boot-progress" aria-hidden="true"></div>
+      </div>
+    </div>
+    <script type="module" src="./src/main.tsx"></script>
+  </body>
+</html>

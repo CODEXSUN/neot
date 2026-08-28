@@ -1,0 +1,121 @@
+name: Desktop release
+
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows-release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26.5.0
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify release version
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $tagVersion = $env:GITHUB_REF_NAME -replace '^desktop-v', ''
+          $packageVersion = node -p "require('./package.json').version"
+          if ($tagVersion -ne $packageVersion) {
+            throw "Tag version $tagVersion does not match package version $packageVersion."
+          }
+
+      - name: Check desktop
+        run: npm run desktop:check
+
+      - name: Prepare desktop sidecars
+        run: node tools/prepare-codex-sidecar.mjs
+
+      - name: Test desktop runtime
+        working-directory: apps/neot/desktop/src-tauri
+        run: cargo test
+
+      - name: Build draft release
+        id: tauri-release
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: apps/neot/desktop
+          tauriScript: npm run tauri
+          tagName: desktop-v__VERSION__
+          releaseName: NEOT __VERSION__
+          releaseBody: Signed NEOT desktop release produced by the verified release workflow.
+          releaseDraft: true
+          prerelease: false
+          uploadUpdaterJson: false
+          updaterJsonPreferNsis: false
+
+      - name: Collect root deploy outputs
+        run: npm run desktop:release:publish
+
+      - name: Check desktop release outputs
+        run: npm run desktop:release:check
+
+      - name: Upload first-install assets
+        uses: actions/github-script@v8
+        env:
+          MANIFEST_PATH: dist/deploy/desktop/${{ steps.tauri-release.outputs.appVersion }}/windows-x64/updater/latest.json
+          RELEASE_ID: ${{ steps.tauri-release.outputs.releaseId }}
+          SETUP_PATH: dist/deploy/desktop/${{ steps.tauri-release.outputs.appVersion }}/windows-x64/installer/NEOT_Setup_${{ steps.tauri-release.outputs.appVersion }}_x64.exe
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require("fs");
+            const path = require("path");
+            const releaseId = Number(process.env.RELEASE_ID);
+            const assets = [
+              ["latest.json", process.env.MANIFEST_PATH],
+              [path.basename(process.env.SETUP_PATH), process.env.SETUP_PATH]
+            ];
+            for (const [name, assetPath] of assets) {
+              await github.rest.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: releaseId,
+                name,
+                data: fs.readFileSync(assetPath)
+              });
+            }
+
+      - name: Upload root deploy outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: neot-${{ github.ref_name }}-windows-x64
+          path: dist/deploy/desktop/*/windows-x64
+          if-no-files-found: error
+
+      - name: Publish verified release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/github-script@v8
+        env:
+          RELEASE_ID: ${{ steps.tauri-release.outputs.releaseId }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: Number(process.env.RELEASE_ID),
+              draft: false
+            });

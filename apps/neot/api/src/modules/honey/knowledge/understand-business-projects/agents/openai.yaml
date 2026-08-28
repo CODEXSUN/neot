@@ -1,0 +1,4 @@
+interface:
+  display_name: "Understand Business Projects"
+  short_description: "Business discovery and automation guidance"
+  default_prompt: "Use $understand-business-projects to understand this business request and propose one safe next step."

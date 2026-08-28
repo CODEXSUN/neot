@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-120 0 1440 1330" role="img" aria-labelledby="title description">
+  <title id="title">NEOT engineering platform architecture</title>
+  <desc id="description">Logicx Software India P Ltd operates one engineering platform and one source-of-truth repository for four independent products. Product purposes stay undefined until owner approval. Shared capabilities support planning, design, development, testing, release, deployment, maintenance, and client feedback.</desc>
+  <defs>
+    <marker id="arrow" markerHeight="8" markerWidth="8" orient="auto" refX="7" refY="4">
+      <path d="M0 0 8 4 0 8Z" fill="#64748b"/>
+    </marker>
+    <marker id="feedback-arrow" markerHeight="8" markerWidth="8" orient="auto" refX="7" refY="4">
+      <path d="M0 0 8 4 0 8Z" fill="#059669"/>
+    </marker>
+    <filter id="card-shadow" x="-10%" y="-20%" width="120%" height="150%">
+      <feDropShadow dx="0" dy="3" flood-color="#0f172a" flood-opacity="0.08" stdDeviation="3"/>
+    </filter>
+    <style>
+      .label { fill: #64748b; font: 600 16px ui-sans-serif, system-ui, sans-serif; letter-spacing: .08em; }
+      .title { fill: #0f172a; font: 700 23px ui-sans-serif, system-ui, sans-serif; }
+      .detail { fill: #475569; font: 500 16px ui-sans-serif, system-ui, sans-serif; }
+      .small { fill: #475569; font: 500 14px ui-sans-serif, system-ui, sans-serif; }
+      .stage { fill: #ffffff; filter: url(#card-shadow); stroke: #cbd5e1; stroke-width: 2; }
+      .line { fill: none; stroke: #64748b; stroke-width: 2; }
+      .node { fill: #ffffff; filter: url(#card-shadow); stroke: #cbd5e1; stroke-width: 2; }
+    </style>
+  </defs>
+  <rect x="-120" width="1440" height="1330" rx="32" fill="#f8fafc"/>
+
+  <text class="label" text-anchor="middle" x="600" y="48">ONE ORGANIZATION</text>
+  <rect class="node" x="360" y="70" width="480" height="76" rx="18"/>
+  <text class="title" text-anchor="middle" x="600" y="116">Logicx Software India P Ltd</text>
+  <path class="line" d="M600 146V180" marker-end="url(#arrow)"/>
+
+  <rect x="332" y="188" width="536" height="108" rx="22" fill="#eef2ff" stroke="#818cf8" stroke-width="2"/>
+  <text class="label" fill="#4f46e5" text-anchor="middle" x="600" y="224">ONE ENGINEERING PLATFORM</text>
+  <text class="title" text-anchor="middle" x="600" y="262">NEOT Engineering Platform</text>
+  <path class="line" d="M600 296V330" marker-end="url(#arrow)"/>
+
+  <rect x="370" y="338" width="460" height="82" rx="18" fill="#0f172a"/>
+  <text class="label" fill="#94a3b8" text-anchor="middle" x="600" y="370">ONE SOURCE OF TRUTH</text>
+  <text x="600" y="399" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="20" font-weight="700" text-anchor="middle">Engineering repository</text>
+  <path class="line" d="M600 420V448" marker-end="url(#arrow)"/>
+  <text class="label" text-anchor="middle" x="600" y="476">MANY INDEPENDENT PRODUCTS</text>
+  <path class="line" d="M600 486V492M175 492H1015M175 492V508M455 492V508M735 492V508M1015 492V508"/>
+  <g>
+    <rect class="node" x="50" y="508" width="250" height="76" rx="16"/>
+    <text class="title" text-anchor="middle" x="175" y="540">Project A</text>
+    <text class="small" text-anchor="middle" x="175" y="564">Definition needs approval</text>
+    <rect class="node" x="330" y="508" width="250" height="76" rx="16"/>
+    <text class="title" text-anchor="middle" x="455" y="540">Project B</text>
+    <text class="small" text-anchor="middle" x="455" y="564">Definition needs approval</text>
+    <rect class="node" x="610" y="508" width="250" height="76" rx="16"/>
+    <text class="title" text-anchor="middle" x="735" y="540">Project C</text>
+    <text class="small" text-anchor="middle" x="735" y="564">Definition needs approval</text>
+    <rect class="node" x="890" y="508" width="250" height="76" rx="16"/>
+    <text class="title" text-anchor="middle" x="1015" y="540">Project N</text>
+    <text class="small" text-anchor="middle" x="1015" y="564">Definition needs approval</text>
+  </g>
+  <path class="line" d="M175 584V608M455 584V608M735 584V608M1015 584V608M175 608H1015M600 608V624" marker-end="url(#arrow)"/>
+
+  <rect x="116" y="632" width="968" height="88" rx="20" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="2"/>
+  <text class="label" fill="#047857" text-anchor="middle" x="600" y="664">SHARED PLATFORM CAPABILITIES</text>
+  <text class="detail" text-anchor="middle" x="600" y="696">Identity &#183; AI agents &#183; source control &#183; testing &#183; infrastructure &#183; observability</text>
+  <path class="line" d="M600 720V758" marker-end="url(#arrow)"/>
+
+  <text class="label" text-anchor="middle" x="600" y="784">STANDARDIZED PRODUCT DELIVERY</text>
+  <g>
+    <rect class="stage" x="70" y="806" width="172" height="72" rx="16"/>
+    <text class="title" text-anchor="middle" x="156" y="838">Discover</text>
+    <text class="small" text-anchor="middle" x="156" y="860">Client needs</text>
+    <path class="line" d="M242 842H274" marker-end="url(#arrow)"/>
+    <rect class="stage" x="282" y="806" width="172" height="72" rx="16"/>
+    <text class="title" text-anchor="middle" x="368" y="838">Plan &amp; Design</text>
+    <text class="small" text-anchor="middle" x="368" y="860">Scope and UX</text>
+    <path class="line" d="M454 842H486" marker-end="url(#arrow)"/>
+    <rect class="stage" x="494" y="806" width="172" height="72" rx="16"/>
+    <text class="title" text-anchor="middle" x="580" y="838">Develop</text>
+    <text class="small" text-anchor="middle" x="580" y="860">Build and integrate</text>
+    <path class="line" d="M666 842H698" marker-end="url(#arrow)"/>
+    <rect class="stage" x="706" y="806" width="172" height="72" rx="16"/>
+    <text class="title" text-anchor="middle" x="792" y="838">Test &amp; Review</text>
+    <text class="small" text-anchor="middle" x="792" y="860">Quality gates</text>
+    <path class="line" d="M878 842H910" marker-end="url(#arrow)"/>
+    <rect class="stage" x="918" y="806" width="212" height="72" rx="16"/>
+    <text class="title" text-anchor="middle" x="1024" y="838">Approve &amp; Release</text>
+    <text class="small" text-anchor="middle" x="1024" y="860">Versioned delivery</text>
+  </g>
+  <path class="line" d="M1024 878V916H600V942" marker-end="url(#arrow)"/>
+
+  <rect x="168" y="950" width="864" height="94" rx="20" fill="#fff7ed" stroke="#fdba74" stroke-width="2"/>
+  <text class="label" fill="#c2410c" text-anchor="middle" x="600" y="982">DEPLOYMENT</text>
+  <text class="title" text-anchor="middle" x="600" y="1016">Preview &#8594; Staging &#8594; Production &#8594; Verification</text>
+  <path class="line" d="M600 1044V1082" marker-end="url(#arrow)"/>
+
+  <rect x="168" y="1090" width="864" height="94" rx="20" fill="#eff6ff" stroke="#93c5fd" stroke-width="2"/>
+  <text class="label" fill="#1d4ed8" text-anchor="middle" x="600" y="1122">MAINTENANCE &amp; CONTINUOUS IMPROVEMENT</text>
+  <text class="title" text-anchor="middle" x="600" y="1156">Observe &#183; Support &#183; Secure &#183; Update &#183; Optimize</text>
+  <path class="line" d="M600 1184V1222" marker-end="url(#arrow)"/>
+
+  <rect x="258" y="1230" width="684" height="76" rx="18" fill="#0f172a"/>
+  <text class="label" fill="#94a3b8" text-anchor="middle" x="600" y="1260">CLIENT ROLES</text>
+  <text x="600" y="1288" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="700" text-anchor="middle">Business owner &#183; Administrator &#183; Team member &#183; End user</text>
+
+  <path d="M258 1268H12Q0 1268 0 1256V1091" fill="none" stroke="#059669" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <rect x="-100" y="1019" width="200" height="72" rx="16" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="2"/>
+  <text x="0" y="1049" fill="#047857" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700" text-anchor="middle">
+    <tspan x="0">CLIENT FEEDBACK</tspan>
+    <tspan x="0" dy="22">AND NEW REQUIREMENTS</tspan>
+  </text>
+  <path d="M0 1019V854Q0 842 12 842H70" fill="none" stroke="#059669" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" marker-end="url(#feedback-arrow)"/>
+</svg>
