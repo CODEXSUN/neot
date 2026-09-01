@@ -1,6 +1,6 @@
 {
   "name": "@neot/framework",
-  "version": "1.0.88",
+  "version": "1.0.89",
   "private": true,
   "description": "NEOT-owned framework runtime and stable application contracts",
   "type": "module",

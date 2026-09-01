@@ -1,8 +1,30 @@
 # Changelog
 
-Current version: 1.0.88
-Release tag: v-1.0.88
-Changelog label: v 1.0.88
+Current version: 1.0.89
+Release tag: v-1.0.89
+Changelog label: v 1.0.89
+
+## v-1.0.89
+
+### [v 1.0.89] 2026-09-01 7:04 pm - Production environment validation fix
+
+#### Database Changes
+
+- Database update: No.
+- No persisted schema, seed, or data changed.
+
+#### App Codebase Changes
+
+- Bumped repository version to 1.0.89.
+- Treated an empty optional Telegram API ID as unset instead of numeric zero.
+- Unblocked production migrations and API startup when Telegram is not configured.
+
+#### Verification
+
+- Passed `npm.cmd run typecheck --workspace @neot/platform-api` before the version bump.
+- VPS Docker `verify` passed for release 1.0.88 before this runtime configuration issue appeared.
+- Production migration stopped before application migrations ran because the empty optional value was rejected.
+- Release 1.0.89 VPS verification and deployment remain pending.
 
 ## v-1.0.88
 

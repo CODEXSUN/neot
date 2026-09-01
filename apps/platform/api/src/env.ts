@@ -34,7 +34,10 @@ const envSchema = z.object({
   NEOT_CODEX_HOME: z.string().optional(),
   TELEGRAM_BOT_TOKEN: z.string().default(""),
   TELEGRAM_BOT_USERNAME: z.string().default(""),
-  TELEGRAM_API_ID: z.coerce.number().int().positive().optional(),
+  TELEGRAM_API_ID: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.coerce.number().int().positive().optional()
+  ),
   TELEGRAM_API_HASH: z.string().default(""),
   TELEGRAM_SESSION_ENCRYPTION_KEY: z.string().default(""),
   TELEGRAM_WEBHOOK_SECRET: z.string().default(""),
