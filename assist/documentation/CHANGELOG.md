@@ -1,8 +1,30 @@
 # Changelog
 
-Current version: 1.0.89
-Release tag: v-1.0.89
-Changelog label: v 1.0.89
+Current version: 1.0.90
+Release tag: v-1.0.90
+Changelog label: v 1.0.90
+
+## v-1.0.90
+
+### [v 1.0.90] 2026-09-01 7:15 pm - Redis notification runtime dependency
+
+#### Database Changes
+
+- Database update: No.
+- No persisted schema, seed, or data changed.
+
+#### App Codebase Changes
+
+- Bumped repository version to 1.0.90.
+- Added the required `ioredis` runtime package for BullMQ.
+- Unblocked notification queue startup when production Redis is configured.
+
+#### Verification
+
+- Passed `npm.cmd run typecheck --workspace @neot/neot-api` before the version bump.
+- Release 1.0.89 completed all database migrations and repeatable seeds on VPS `neot_db`.
+- Release 1.0.89 API startup exposed the missing optional BullMQ runtime package.
+- Release 1.0.90 VPS verification, container health, tunnel, and watcher checks remain pending.
 
 ## v-1.0.89
 

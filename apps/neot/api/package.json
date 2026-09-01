@@ -1,6 +1,6 @@
 {
   "name": "@neot/neot-api",
-  "version": "1.0.89",
+  "version": "1.0.90",
   "private": true,
   "type": "module",
   "exports": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
-    "@neot/framework": "1.0.89",
+    "@neot/framework": "1.0.90",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@openai/agents": "^0.17.0",
     "@openai/codex": "^0.148.0",
@@ -25,6 +25,7 @@
     "@types/nodemailer": "^8.0.1",
     "bullmq": "^6.1.2",
     "fastify": "^5.12.1",
+    "ioredis": "^5.8.2",
     "kysely": "^0.29.5",
     "nodemailer": "^9.0.5",
     "openai": "^7.5.0",

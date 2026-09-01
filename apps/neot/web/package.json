@@ -1,6 +1,6 @@
 {
   "name": "@neot/neot-web",
-  "version": "1.0.89",
+  "version": "1.0.90",
   "private": true,
   "type": "module",
   "exports": {
@@ -14,7 +14,7 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
-    "@neot/ui": "1.0.89",
+    "@neot/ui": "1.0.90",
     "@codexsun/blog": "*",
     "@codexsun/file-manager": "*",
     "@dnd-kit/core": "^6.3.1",
