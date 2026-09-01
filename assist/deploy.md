@@ -67,3 +67,21 @@ cat /var/lib/neot-update-watcher/last-successful-version
 If Git diverges, the checkout is dirty, isolated verification fails, backup or migration fails, or
 health checks fail, the run stops. Do not force-reset production or automatically reverse a
 completed migration. Review the journal, retained backup, and deployment metadata before retrying.
+
+## Shared VPS services
+
+The production setup can join the existing `cxapp-network` Docker network. It reuses the running
+MariaDB, Redis, and File Browser infrastructure without taking ownership of those containers.
+
+NEOT creates only `neot_db` in the shared MariaDB server. Setup copies the protected database and
+Redis credentials from `/home/cxapp/.container/deploy.env`. Do not copy these secrets into Git.
+
+The API mounts the existing File Browser data volume at `/var/lib/neot/media`. It writes NEOT files
+below `/var/lib/neot/media/neot`. File Browser sees the same files below its `/srv/neot` directory.
+Do not write NEOT files into another application's directory.
+
+Use loopback host ports for the application containers. The current VPS allocation is API port
+`9270` and Web port `9280`. Publish the Web service through the approved Cloudflare tunnel hostname.
+
+The guarded updater checks all three shared services before it builds or replaces NEOT containers.
+It stops if MariaDB, Redis, the media container, or the shared media volume is unavailable.

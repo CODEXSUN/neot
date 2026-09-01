@@ -27,15 +27,15 @@ Included:
   - Repository-owned Framework public platform contracts
   - Repository-owned UI
   - NEOT Platform API and Web
-  - Reused existing Docker network and MariaDB, or NEOT-owned infrastructure
+  - Reused existing Docker network, MariaDB, Redis, and File Browser storage
 
 Excluded:
-  - CXApp, Billing, Mail, TMApp, Redis, Media, and all other stacks
+  - CXApp, Billing, Mail, TMApp, and all other application stacks
 
 The setup builds only this self-contained NEOT repository. It asks whether
-to reuse an existing Docker network and running MariaDB container or create a
-dedicated NEOT network and MariaDB. NEOT uses only MariaDB and does not
-inspect or depend on Redis, Media, or another application stack.
+to reuse an existing Docker network with MariaDB, Redis, and File Browser storage,
+or create dedicated NEOT infrastructure. Shared services keep their existing owners.
+NEOT uses its own database and storage directory.
 If dedicated NEOT MariaDB data already exists, setup separately asks
 whether to reuse or freshly recreate only the NEOT database volume.
 EOF
@@ -221,6 +221,8 @@ prepare_runtime_environment() {
   set_file_value "$RUNTIME_ENV" NEOT_DB_FRESH_ON_START 0
   set_file_value "$RUNTIME_ENV" NEOT_DB_RESET_CONFIRM ""
   set_file_value "$RUNTIME_ENV" NEOT_ALLOW_PRODUCTION_DB_RESET 0
+  set_file_value "$RUNTIME_ENV" NEOT_STORAGE_PATH /var/lib/neot/media/neot
+  set_file_value "$RUNTIME_ENV" FILE_MANAGER_LOCAL_ROOT /var/lib/neot/media/neot/file-manager
   chmod 600 "$RUNTIME_ENV" 2>/dev/null || true
 }
 
@@ -309,7 +311,7 @@ select_infrastructure_mode() {
 }
 
 prepare_shared_infrastructure() {
-  local mariadb network root_password shared_env shared_user shared_password
+  local mariadb media media_volume network redis redis_url root_password shared_env shared_user shared_password
   mariadb="$(file_value "$DEPLOY_ENV" NEOT_SHARED_MARIADB_CONTAINER_NAME cxapp-mariadb)"
   network="$(file_value "$DEPLOY_ENV" NEOT_NETWORK cxapp-network)"
   shared_env="$(file_value "$DEPLOY_ENV" NEOT_SHARED_MARIADB_ENV_FILE)"
@@ -324,6 +326,10 @@ prepare_shared_infrastructure() {
     shared_user="$(file_value "$shared_env" DB_USER)"
     shared_password="$(file_value "$shared_env" DB_PASSWORD)"
     root_password="$(file_value "$shared_env" MARIADB_ROOT_PASSWORD)"
+    redis="$(file_value "$shared_env" REDIS_CONTAINER_NAME cxapp-redis)"
+    redis_url="$(file_value "$shared_env" CXAPP_REDIS_URL)"
+    media="$(file_value "$shared_env" MEDIA_CONTAINER_NAME cxapp-media)"
+    media_volume="$(file_value "$shared_env" MEDIA_DATA_VOLUME cxapp-media-data)"
     [[ -n "$shared_user" && -n "$shared_password" && -n "$root_password" ]] || {
       echo "CXApp DB_USER, DB_PASSWORD, and MARIADB_ROOT_PASSWORD are required in $shared_env." >&2
       exit 78
@@ -331,11 +337,33 @@ prepare_shared_infrastructure() {
     set_file_value "$DEPLOY_ENV" DB_USER "$shared_user"
     set_file_value "$DEPLOY_ENV" DB_PASSWORD "$shared_password"
     set_file_value "$DEPLOY_ENV" NEOT_SHARED_MARIADB_ROOT_PASSWORD "$root_password"
+    set_file_value "$DEPLOY_ENV" NEOT_SHARED_REDIS_CONTAINER_NAME "$redis"
+    set_file_value "$DEPLOY_ENV" NEOT_SHARED_MEDIA_CONTAINER_NAME "$media"
+    set_file_value "$DEPLOY_ENV" NEOT_MEDIA_DATA_VOLUME "$media_volume"
+    set_file_value "$DEPLOY_ENV" NEOT_MEDIA_DATA_VOLUME_EXTERNAL true
+    set_file_value "$RUNTIME_ENV" REDIS_URL "$redis_url"
     echo "Synchronized protected MariaDB credentials from the CXApp deployment environment."
   fi
   safe_docker_name "$mariadb"
   container_is_running "$mariadb" || {
     echo "Existing MariaDB container is not running: $mariadb" >&2
+    exit 69
+  }
+  redis="$(file_value "$DEPLOY_ENV" NEOT_SHARED_REDIS_CONTAINER_NAME cxapp-redis)"
+  media="$(file_value "$DEPLOY_ENV" NEOT_SHARED_MEDIA_CONTAINER_NAME cxapp-media)"
+  for container in "$redis" "$media"; do
+    safe_docker_name "$container"
+    container_is_running "$container" || {
+      echo "Existing shared container is not running: $container" >&2
+      exit 69
+    }
+  done
+  [[ -n "$(file_value "$RUNTIME_ENV" REDIS_URL)" ]] || {
+    echo "The shared Redis URL is unavailable." >&2
+    exit 78
+  }
+  docker volume inspect "$(file_value "$DEPLOY_ENV" NEOT_MEDIA_DATA_VOLUME)" >/dev/null 2>&1 || {
+    echo "The shared File Browser data volume is unavailable." >&2
     exit 69
   }
   docker network inspect "$network" >/dev/null 2>&1 || {
@@ -363,6 +391,10 @@ configure_shared_infrastructure() {
   set_file_value "$DEPLOY_ENV" NEOT_NETWORK_EXTERNAL true
   prompt_setting "$DEPLOY_ENV" NEOT_SHARED_MARIADB_ENV_FILE \
     "CXApp protected deployment env" ../../cxapp/.container/deploy.env
+  prompt_setting "$DEPLOY_ENV" NEOT_SHARED_REDIS_CONTAINER_NAME \
+    "CXApp Redis container name" cxapp-redis
+  prompt_setting "$DEPLOY_ENV" NEOT_SHARED_MEDIA_CONTAINER_NAME \
+    "CXApp File Browser container name" cxapp-media
 }
 
 configure_dedicated_infrastructure() {
@@ -387,6 +419,9 @@ configure_dedicated_infrastructure() {
   prompt_setting "$DEPLOY_ENV" NEOT_NETWORK "Dedicated Docker network" neot-network
   prompt_setting "$DEPLOY_ENV" NEOT_MARIADB_DATA_VOLUME \
     "MariaDB data volume" neot-mariadb-data
+  set_file_value "$DEPLOY_ENV" NEOT_MEDIA_DATA_VOLUME_EXTERNAL false
+  prompt_setting "$DEPLOY_ENV" NEOT_MEDIA_DATA_VOLUME \
+    "NEOT media data volume" neot-media-data
   prompt_setting "$DEPLOY_ENV" MARIADB_IMAGE "MariaDB image" mariadb:11.8
   prompt_secret "$DEPLOY_ENV" MARIADB_ROOT_PASSWORD "Dedicated MariaDB root password"
 }
@@ -406,6 +441,8 @@ verify_agent_runtime_image() {
     test -w "$NEOT_CODEX_HOME"
     test -w "$NEOT_AGENT_WORKTREE_ROOT"
     test -w "$NEOT_AGENT_ALLOWED_ROOTS"
+    test -w "$NEOT_STORAGE_PATH"
+    test -w "$FILE_MANAGER_LOCAL_ROOT"
   '
 }
 
@@ -418,6 +455,8 @@ verify_agent_runtime_container() {
     test -w "$NEOT_CODEX_HOME"
     test -w "$NEOT_AGENT_WORKTREE_ROOT"
     test -w "$NEOT_AGENT_ALLOWED_ROOTS"
+    test -w "$NEOT_STORAGE_PATH"
+    test -w "$FILE_MANAGER_LOCAL_ROOT"
   '
 }
 
@@ -482,7 +521,8 @@ validate_deploy_environment() {
     NEOT_MARIADB_DATA_VOLUME \
     NEOT_CODEX_STATE_VOLUME \
     NEOT_AGENT_WORKTREE_VOLUME \
-    NEOT_AGENT_REPOSITORY_VOLUME; do
+    NEOT_AGENT_REPOSITORY_VOLUME \
+    NEOT_MEDIA_DATA_VOLUME; do
     safe_docker_name "$(file_value "$DEPLOY_ENV" "$key")"
   done
   ensure_available_host_port \
@@ -578,6 +618,23 @@ connect_shared_mariadb() {
   fi
 }
 
+connect_shared_services() {
+  local network container
+  network="$(file_value "$DEPLOY_ENV" NEOT_NETWORK cxapp-network)"
+  for container in \
+    "$(file_value "$DEPLOY_ENV" NEOT_SHARED_MARIADB_CONTAINER_NAME cxapp-mariadb)" \
+    "$(file_value "$DEPLOY_ENV" NEOT_SHARED_REDIS_CONTAINER_NAME cxapp-redis)" \
+    "$(file_value "$DEPLOY_ENV" NEOT_SHARED_MEDIA_CONTAINER_NAME cxapp-media)"; do
+    safe_docker_name "$container"
+    if ! docker inspect --format \
+      '{{range $name, $_ := .NetworkSettings.Networks}}{{$name}}{{println}}{{end}}' \
+      "$container" | grep -Fxq "$network"; then
+      docker network connect "$network" "$container"
+      echo "Connected existing shared container $container to network $network."
+    fi
+  done
+}
+
 require_command node
 require_command docker
 docker info >/dev/null 2>&1 || {
@@ -625,9 +682,9 @@ echo "  Source: self-contained NEOT monorepo"
 echo "  Infrastructure: $infrastructure_label"
 echo "  MariaDB data: $database_mode"
 echo "  Images: internal Framework/UI -> NEOT Platform API/Web"
-echo "  Runtime: NEOT API, NEOT Web, selected MariaDB"
+echo "  Runtime: NEOT API, NEOT Web, selected MariaDB, Redis, and File Browser storage"
 echo "  Agent storage: separate Codex state, repository, and worktree volumes"
-echo "  Excluded: CXApp, TMApp, Billing, Mail, Redis, and Media"
+echo "  Shared services stay owned by CXApp. NEOT uses isolated database and storage paths."
 read -r -p "Build and apply this standalone NEOT installation? [Y/n] " confirmation
 case "${confirmation:-Y}" in
   y|Y|yes|Yes|YES) ;;
@@ -647,7 +704,7 @@ compose build api web
 echo "Verifying Git and writable Agent runtime volumes in the API image."
 verify_agent_runtime_image
 if [[ "$infrastructure_mode" == shared ]]; then
-  connect_shared_mariadb
+  connect_shared_services
   reconcile_database_user shared
   compose up -d api web --no-build --no-deps --force-recreate --wait --wait-timeout 300
 else

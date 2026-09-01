@@ -1,6 +1,6 @@
 [package]
 name = "neot-desktop"
-version = "1.0.87"
+version = "1.0.88"
 description = "NEOT IDE runtime"
 edition = "2021"
 

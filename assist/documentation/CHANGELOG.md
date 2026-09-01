@@ -1,8 +1,39 @@
 # Changelog
 
-Current version: 1.0.87
-Release tag: v-1.0.87
-Changelog label: v 1.0.87
+Current version: 1.0.88
+Release tag: v-1.0.88
+Changelog label: v 1.0.88
+
+## v-1.0.88
+
+### [v 1.0.88] 2026-09-01 6:46 pm - Shared VPS services and guarded deployment
+
+#### Database Changes
+
+- Database update: No.
+- No persisted schema, seed, or data changed.
+
+#### App Codebase Changes
+
+- Bumped repository version to 1.0.88.
+- Connected the production API to the existing shared Redis service.
+- Mounted the existing File Browser data volume with a NEOT-only storage directory.
+- Kept `neot_db` separate in the shared MariaDB server.
+- Added shared-service checks to setup and guarded update flows.
+- Added writable storage checks before an API container can become healthy.
+- Documented the VPS ports, shared-service ownership, watcher, and online routing contract.
+
+#### Verification
+
+- Passed `npm.cmd run check:deployment`.
+- Passed `npm.cmd run typecheck` for all TypeScript workspaces.
+- Passed shell syntax checks with Git Bash for setup, update, entrypoint, and watcher scripts.
+- Passed `node tools/release-scope.mjs` with 23 classified paths and no unclassified paths.
+- Passed `node tools/repository-release.mjs check:versions` for repository version 1.0.88.
+- Passed `git diff --check`.
+- Passed `node tools/repository-release.mjs github:now --dry-run` without changing Git.
+- Local Docker verification did not run because Docker Desktop was unavailable.
+- VPS Docker verification, deployment, health, shared-service, watcher, and online checks remain pending.
 
 ## v-1.0.87
 

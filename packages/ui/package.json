@@ -1,6 +1,6 @@
 {
   "name": "@neot/ui",
-  "version": "1.0.87",
+  "version": "1.0.88",
   "private": true,
   "description": "NEOT-owned design system and workspace primitives",
   "type": "module",

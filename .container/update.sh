@@ -143,6 +143,8 @@ verify_agent_runtime_image() {
     test -w "$NEOT_CODEX_HOME"
     test -w "$NEOT_AGENT_WORKTREE_ROOT"
     test -w "$NEOT_AGENT_ALLOWED_ROOTS"
+    test -w "$NEOT_STORAGE_PATH"
+    test -w "$FILE_MANAGER_LOCAL_ROOT"
   '
 }
 
@@ -153,6 +155,8 @@ verify_agent_runtime_container() {
     test -w "$NEOT_CODEX_HOME"
     test -w "$NEOT_AGENT_WORKTREE_ROOT"
     test -w "$NEOT_AGENT_ALLOWED_ROOTS"
+    test -w "$NEOT_STORAGE_PATH"
+    test -w "$FILE_MANAGER_LOCAL_ROOT"
   '
 }
 
@@ -384,7 +388,21 @@ if [[ "$network_external" == true ]]; then
     echo "Configured shared MariaDB container is not running: $mariadb_container" >&2
     exit 69
   }
-  infrastructure="shared MariaDB $mariadb_container on external network $network"
+  for container in \
+    "$(file_value "$DEPLOY_ENV" NEOT_SHARED_REDIS_CONTAINER_NAME cxapp-redis)" \
+    "$(file_value "$DEPLOY_ENV" NEOT_SHARED_MEDIA_CONTAINER_NAME cxapp-media)"; do
+    safe_docker_name "$container"
+    container_is_running "$container" || {
+      echo "Configured shared container is not running: $container" >&2
+      exit 69
+    }
+  done
+  require_setting "$RUNTIME_ENV" REDIS_URL
+  docker volume inspect "$(file_value "$DEPLOY_ENV" NEOT_MEDIA_DATA_VOLUME)" >/dev/null 2>&1 || {
+    echo "Configured shared File Browser data volume was not found." >&2
+    exit 69
+  }
+  infrastructure="shared MariaDB, Redis, and File Browser storage on external network $network"
 else
   mariadb_container="$(
     file_value "$DEPLOY_ENV" NEOT_MARIADB_CONTAINER_NAME neot-mariadb

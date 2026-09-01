@@ -31,13 +31,17 @@ requireTokens(".container/setup.sh", setup, [
 requireTokens(".container/docker-compose.yml", compose, [
   "name: ${NEOT_COMPOSE_PROJECT:-neot}",
   "NEOT_ENV_FILE_PATH: /workspace/neot/.env",
+  "FILE_MANAGER_LOCAL_ROOT: /var/lib/neot/media/neot/file-manager",
+  "media-data:/var/lib/neot/media",
   "networks: [neot]"
 ]);
 requireTokens(".container/deploy.env.example", deployExample, [
   "NEOT_VERSION=",
   "NEOT_MIGRATION_COMPATIBLE_VERSION=",
   "NEOT_UPDATE_MIN_BACKUP_FREE_MB=",
-  "NEOT_UPDATE_MIN_DOCKER_FREE_MB="
+  "NEOT_UPDATE_MIN_DOCKER_FREE_MB=",
+  "NEOT_MEDIA_DATA_VOLUME=",
+  "NEOT_MEDIA_DATA_VOLUME_EXTERNAL="
 ]);
 requireTokens("update.sh", rootUpdater, ['exec bash "$ROOT_DIR/.container/update.sh" "$@"']);
 requireTokens("updat.sh", compatibilityUpdater, ['exec bash "$ROOT_DIR/update.sh" "$@"']);

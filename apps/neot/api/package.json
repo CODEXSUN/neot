@@ -1,6 +1,6 @@
 {
   "name": "@neot/neot-api",
-  "version": "1.0.87",
+  "version": "1.0.88",
   "private": true,
   "type": "module",
   "exports": {
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
-    "@neot/framework": "1.0.87",
+    "@neot/framework": "1.0.88",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@openai/agents": "^0.17.0",
     "@openai/codex": "^0.148.0",

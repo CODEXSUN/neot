@@ -29,6 +29,7 @@ function groupFiles(files) {
     ["Desktop workspace and agent experience", /^apps\/neot\/desktop\/src\/(?:(?:workspaces|shell|services|contracts|standalone\/compass-runner)\/|styles\.css$)/u],
     ["Desktop icons and packaging", /^apps\/neot\/desktop\/(?:src-tauri\/icons|src-tauri\/(?:Cargo|tauri\.conf)|package\.json)/u],
     ["Local AI environment", /^\.container\/local-ai\//u],
+    ["Container deployment and operations", /^(?:\.container\/(?!local-ai\/)|assist\/deploy\.md$)/u],
     ["Application and package versions", /^(?:package(?:-lock)?\.json|apps\/[^/]+\/[^/]+\/package\.json|packages\/[^/]+\/package\.json)$/u],
     ["Runtime configuration and repository hygiene", /^(?:\.env\.example|\.gitignore)$/u],
     ["Release documentation and skills", /^assist\/(?:documentation|skills|AGENT-GUIDE\.md|README\.md)/u],

@@ -53,6 +53,8 @@ services:
       NEOT_CODEX_HOME: /var/lib/neot/codex
       NEOT_AGENT_ALLOWED_ROOTS: /srv/neot/repositories
       NEOT_AGENT_WORKTREE_ROOT: /var/lib/neot/worktrees
+      NEOT_STORAGE_PATH: /var/lib/neot/media/neot
+      FILE_MANAGER_LOCAL_ROOT: /var/lib/neot/media/neot/file-manager
     depends_on:
       mariadb:
         condition: service_healthy
@@ -63,6 +65,7 @@ services:
       - codex-state:/var/lib/neot/codex
       - agent-worktrees:/var/lib/neot/worktrees
       - agent-repositories:/srv/neot/repositories
+      - media-data:/var/lib/neot/media
     networks: [neot]
     healthcheck:
       test:
@@ -114,6 +117,9 @@ volumes:
     name: ${NEOT_AGENT_WORKTREE_VOLUME:-neot-agent-worktrees}
   agent-repositories:
     name: ${NEOT_AGENT_REPOSITORY_VOLUME:-neot-agent-repositories}
+  media-data:
+    name: ${NEOT_MEDIA_DATA_VOLUME:-neot-media-data}
+    external: ${NEOT_MEDIA_DATA_VOLUME_EXTERNAL:-false}
 
 networks:
   neot:
